@@ -1,0 +1,33 @@
+PROJET : Application Web de Location d'engine de chantier de batiment.
+TYPE : Projet d'university
+
+Fonctionnalité :
+    • Partie Client :
+        - Page d'accueil
+            - List de materiel disponible avec detail de materiel
+            - Une forme pour demande le materiel ( TEST )
+    • Partie Gestion :
+        • Gestion de material ( Ajouter/Supprime - Modifier )
+            - Materiel Model :
+                - Nom de materiel               
+                - Prix defaut de materiel 
+                - Nombre de location
+                - Materiel libre ( oui ou non)
+                - List  des client qui loue le materiel / Clients ID or Clients Full Name
+                - Image de material 
+        • Gestion de client  ( Ajouter/Supprime - Modifier ) :
+            - Client Model :
+                - Nom et Prenom
+                - email 
+                - Numero de telephone
+                - Nombre de location 
+                - List des materiel loue / Material ID or name or Rent ID:
+                    - Vert : material returne en temps
+                    - Rouge : Depasse le delei - retard
+        • Gestion de location :
+            - Location Model :
+                - Client qui a loue
+                - Matériel loué
+                - Prix
+                - Date de creation
+                - Date limite
