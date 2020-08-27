@@ -4,6 +4,7 @@ TYPE : Projet d'university
 Fonctionnalité :
     • Auto-Installation  dans la première utilisation
         - Creation de base de donne + les tableux nécessaire
+        - Creation de compte Admin avec CEO privilèges 
     • Partie Client :
         - Page d'accueil
             - List de materiel disponible avec detail de materiel
