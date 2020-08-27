@@ -1,10 +1,9 @@
-
-
 <?php
 /*
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
 
+require_once('config.php');
 
 class Client 
 {
@@ -36,6 +35,15 @@ class Rent
     var $price;
     var $creation_date;     // YYYY-MM-DD HH:MM:SS
     var $deadline_date;    // YYYY-MM-DD
+    var $author_id;
+}
+
+class Admin
+{
+    var $id;
+    var $username;
+    var $password;
+    var $is_ceo;        // If true , can add/remove/edit other admins accounts
 }
 
 abstract class AbstractManger
@@ -59,6 +67,12 @@ abstract class AbstractManger
     {
         $ps = $this->db_connection->prepare($this->select_id_query);
 
+        if(!$ps)
+        {
+            echo $this->db_connection->error;
+            return FALSE;
+        }
+
         $ps->bind_param("i",$id);
 
         if(!$ps->execute())
@@ -68,6 +82,9 @@ abstract class AbstractManger
         }
 
         $res = $ps->get_result()->fetch_assoc();
+
+        $ps->close();
+            return NULL;
 
         $obj = $this->create_object($res);
 
@@ -114,17 +131,6 @@ abstract class AbstractManger
 
 }
 
-/*
-CREATE TABLE `materials` (
- `id` int(11) NOT NULL AUTO_INCREMENT,
- `name` varchar(255) NOT NULL,
- `default_price` double unsigned DEFAULT 0,
- `is_free` tinyint(1) NOT NULL DEFAULT 0,
- `list_clients` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`list_clients`)),
- `image_path` varchar(255) NOT NULL,
- PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8
-*/
 class MaterialsManger extends AbstractManger
 {
 
@@ -132,9 +138,9 @@ class MaterialsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query       = "INSERT INTO `materials` ( `name`, `default_price`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?, ?);";
-        $this->delete_id_query = "DELETE FROM `materials` WHERE `id` = ?";
-        $this->select_id_query = "SELECT * FROM `materials` WHERE `id` = ?";
+        $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `default_price`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?, ?);";
+        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
+        $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
     }
 
     protected function create_object($res)
@@ -165,17 +171,6 @@ class MaterialsManger extends AbstractManger
     }
 }
 
-/*
-CREATE TABLE `clients` (
- `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
- `first_name` varchar(255) NOT NULL,
- `last_name` varchar(255) NOT NULL,
- `email` varchar(255) NOT NULL,
- `phone` varchar(20) NOT NULL,
- `list_rents` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
- PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8    
-*/
 class ClientsManger extends AbstractManger
 {
 
@@ -183,9 +178,9 @@ class ClientsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query       = "INSERT INTO `clients` ( `first_name`, `last_name` , `email`, `phone`, `list_rents`) VALUES ( ?, ?, ?, ?, ?);";
-        $this->delete_id_query = "DELETE FROM `clients` WHERE `id` = ?";
-        $this->select_id_query = "SELECT * FROM `clients` WHERE `id` = ?";
+        $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `list_rents`) VALUES ( ?, ?, ?, ?, ?);";
+        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
+        $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
     }
 
     protected function create_object($res)
@@ -222,26 +217,15 @@ class ClientsManger extends AbstractManger
     }
 }
 
-/*
-CREATE TABLE `rents` (
- `id` int(11) NOT NULL AUTO_INCREMENT,
- `client_id` int(11) NOT NULL,
- `material_id` int(11) NOT NULL,
- `price` double NOT NULL DEFAULT 0,
- `creation_date` datetime NOT NULL,
- `deadline_date` date NOT NULL,
- PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8
-*/
 class RentsManger extends AbstractManger
 {
     public function __construct($dbconnection)
     {
         parent::__construct($dbconnection);
 
-        $this->add_query       = "INSERT INTO `rents` ( `client_id`, `material_id`, `price`, `creation_date`, `deadline_date`) VALUES ( ?, ?, ?, ?, ?);";
-        $this->delete_id_query = "DELETE FROM `rents` WHERE `id` = ?";
-        $this->select_id_query = "SELECT * FROM `rents` WHERE `id` = ?";
+        $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`rents` ( `client_id`, `material_id`, `price`, `creation_date`, `deadline_date`, `author_id`) VALUES ( ?, ?, ?, ?, ?, ?);";
+        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
+        $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
     }
 
     protected function create_object($res)
@@ -254,6 +238,7 @@ class RentsManger extends AbstractManger
         $obj->price         = $res['price'];
         $obj->creation_date = $res['creation_date'];
         $obj->deadline_date = $res['deadline_date'];
+        $obj->author_id     = $res['author_id'];
 
         return $obj;
     }
@@ -265,7 +250,92 @@ class RentsManger extends AbstractManger
                     $obj->material_id,
                     $obj->price,
                     $obj->creation_date,
-                    $obj->deadline);
+                    $obj->deadline_date,
+                    $obj->author_id);
 
+    }
+}
+
+class AdminsManger extends AbstractManger
+{
+    public function __construct($dbconnection)
+    {
+        parent::__construct($dbconnection);
+
+        $this->create_table_query = "CREATE TABLE ". DATABASE_NAME .".`admins` (
+            `id` int(11) NOT NULL AUTO_INCREMENT,
+            `username` varchar(255) NOT NULL,
+            `password` varchar(255) NOT NULL,
+            `is_ceo` tinyint(1) NOT NULL,
+            PRIMARY KEY (`id`)
+           ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8";
+
+        $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`admins` ( `username`, `password`, `is_ceo`) VALUES ( ?, ?, ?);";
+        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`admins` WHERE `id` = ?";
+        $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`admins` WHERE `id` = ?";
+    }
+
+    protected function create_object($res)
+    {
+        $obj = new Admin();
+ 
+        $obj->id          = $res['id'];
+        $obj->username    = $res['username'];
+        $obj->password    = $res['password'];
+        $obj->is_ceo      = $res['is_ceo'];
+
+        return $obj;
+    }
+
+    protected function bind_param($ps, $obj)
+    {
+        $hashed_pass = password_hash($obj->password, PASSWORD_DEFAULT);
+
+        $ps->bind_param("ssi",
+                    $obj->username,
+                    $hashed_pass,
+                    $obj->is_ceo);
+
+    }
+
+    public function auth($username , $password)
+    {
+        $auth_query = "SELECT * FROM `admins` WHERE `username` = ?";
+
+        $ps = $this->db_connection->prepare($auth_query);
+
+        if(!$ps)
+        {
+            echo $this->db_connection->error;
+            return FALSE;
+        }
+
+        $ps->bind_param("s", $username);
+
+        if(!$ps->execute())   
+        {
+            $ps->close();
+            return NULL;
+        }
+
+        $res = $ps->get_result()->fetch_assoc();
+
+        if($res == NULL)
+        {
+            $ps->close();
+            return NULL;
+        }
+
+        if(!password_verify($password , $res['password']))
+        {
+            $ps->close();
+            return NULL;
+        }
+
+        $obj = $this->create_object($res);
+
+        $ps->close();
+
+        return $obj;
     }
 }

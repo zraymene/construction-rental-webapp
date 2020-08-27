@@ -2,11 +2,20 @@ PROJET : Application Web de Location d'engine de chantier de batiment.
 TYPE : Projet d'university
 
 Fonctionnalité :
+    • Auto-Installation  dans la première utilisation
+        - Creation de base de donne + les tableux nécessaire
     • Partie Client :
         - Page d'accueil
             - List de materiel disponible avec detail de materiel
             - Une forme pour demande le materiel ( TEST )
-    • Partie Gestion :
+    • Partie Gestion (Admin):
+        • Gestion des Admin :
+            - Admin Model :
+                - Nom d'utilisateur
+                - Mot de passe
+                - Email
+                - Si PDG  
+                - Si vérifié
         • Gestion de material ( Ajouter/Supprime - Modifier )
             - Materiel Model :
                 - Nom de materiel               

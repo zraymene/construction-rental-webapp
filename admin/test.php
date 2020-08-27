@@ -1,6 +1,6 @@
 <?php
 
-require_once("db_config.php");
+require_once("database/db_connect.php");
 require_once("systems.php");
 /*
 $_SESSION['CLIENTS_MANGER'] = new ClientsManger($db_connection);
@@ -24,7 +24,7 @@ $client->list_rents = array(50 , 10 , 56, 65);
 echo $_SESSION['CLIENTS_MANGER']->delete(4);
 */
 
-/*$_SESSION['MATERIALS_MANGER'] = new MaterialsManger($db_connection);
+$_SESSION['MATERIALS_MANGER'] = new MaterialsManger($db_connection);
 
 $mat = new Material();
 
@@ -36,7 +36,9 @@ $mat->image_path    = "PDF.png";
 
 //vvar_dump($mat);
 
-echo $_SESSION['MATERIALS_MANGER']->add($mat);*/
+//echo $_SESSION['MATERIALS_MANGER']->add($mat);
+
+$_SESSION['MATERIALS_MANGER']->delete(6);
 
 /*$_SESSION['RENTS_MANGER'] = new RentsManger($db_connection);
 
@@ -56,4 +58,21 @@ $rent->deadline       = date("Y-m-d");
 
 */
 
-echo json_encode(array());
+/*$_SESSION['ADMINS_MANGER'] = new AdminsManger($db_connection);
+
+$admin = new Admin();
+
+$admin->username = "bogaag";
+$admin->password = "fodadag";
+$admin->is_ceo   = TRUE;
+
+//$_SESSION['ADMINS_MANGER']->add($admin);
+
+/*if($_SESSION['ADMINS_MANGER']->auth("bogaag" , "fodadag") != NULL)
+    echo 'FOUND';
+else
+    echo 'NOT FOUND';
+*/
+
+//$_SESSION['ADMINS_MANGER']->delete(2);
+
