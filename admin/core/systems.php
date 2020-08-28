@@ -62,6 +62,11 @@ abstract class AbstractManger
     abstract protected function create_object($res);
     abstract protected function bind_param($ps, $obj);
 
+    public function refresh_db_connection($dbconnection)    // Reconnect if connection is closed
+    {
+        $this->db_connection = $dbconnection;
+    }
+
     // Returns wanted object , NULL on failure
     public function select_id($id)
     {
@@ -262,14 +267,6 @@ class AdminsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->create_table_query = "CREATE TABLE ". DATABASE_NAME .".`admins` (
-            `id` int(11) NOT NULL AUTO_INCREMENT,
-            `username` varchar(255) NOT NULL,
-            `password` varchar(255) NOT NULL,
-            `is_ceo` tinyint(1) NOT NULL,
-            PRIMARY KEY (`id`)
-           ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8";
-
         $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`admins` ( `username`, `password`, `is_ceo`) VALUES ( ?, ?, ?);";
         $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`admins` WHERE `id` = ?";
         $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`admins` WHERE `id` = ?";
@@ -300,14 +297,16 @@ class AdminsManger extends AbstractManger
 
     public function auth($username , $password)
     {
-        $auth_query = "SELECT * FROM `admins` WHERE `username` = ?";
+        $auth_query = "SELECT * FROM ". DATABASE_NAME .".`admins` WHERE `username` = ?";
+        
+        is_resource($this->db_connection);
 
         $ps = $this->db_connection->prepare($auth_query);
 
         if(!$ps)
         {
             echo $this->db_connection->error;
-            return FALSE;
+            return NULL;
         }
 
         $ps->bind_param("s", $username);
@@ -337,5 +336,40 @@ class AdminsManger extends AbstractManger
         $ps->close();
 
         return $obj;
+    }
+}
+
+function refresh_mangers($obj , $new_connection)
+{
+    if($obj & ADMINS_MANGER_FLAG)
+    {
+        if(!isset($_SESSION['ADMINS_MANGER']))
+            $_SESSION['ADMINS_MANGER'] = new AdminsManger($new_connection);
+        else 
+           $_SESSION['ADMINS_MANGER']->refresh_db_connection($new_connection);
+    }
+
+    if($obj & RENTS_MANGER_FLAG)
+    {
+        if(!isset($_SESSION['RENTS_MANGER']))
+            $_SESSION['RENTS_MANGER'] = new RentsManger($new_connection);
+        else 
+           $_SESSION['RENTS_MANGER']->refresh_db_connection($new_connection);
+    }
+
+    if($obj & MATERIALS_MANGER_FLAG)
+    {
+        if(!isset($_SESSION['MATERIALS_MANGER']))
+            $_SESSION['MATERIALS_MANGER'] = new MaterialsManger($new_connection);
+        else 
+           $_SESSION['MATERIALS_MANGER']->refresh_db_connection($new_connection);
+    }
+
+    if($obj & CLIENTS_MANGER_FLAG)
+    {
+        if(!isset($_SESSION['CLIENTS_MANGER']))
+            $_SESSION['CLIENTS_MANGER'] = new ClientsManger($new_connection);
+        else 
+           $_SESSION['CLIENTS_MANGER']->refresh_db_connection($new_connection);
     }
 }

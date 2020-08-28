@@ -1,7 +1,7 @@
 <?php
 
 require_once("database/db_connect.php");
-require_once("systems.php");
+require_once("core/systems.php");
 /*
 $_SESSION['CLIENTS_MANGER'] = new ClientsManger($db_connection);
 
@@ -38,7 +38,7 @@ $mat->image_path    = "PDF.png";
 
 //echo $_SESSION['MATERIALS_MANGER']->add($mat);
 
-$_SESSION['MATERIALS_MANGER']->delete(6);
+//$_SESSION['MATERIALS_MANGER']->delete(6);
 
 /*$_SESSION['RENTS_MANGER'] = new RentsManger($db_connection);
 
@@ -58,7 +58,10 @@ $rent->deadline       = date("Y-m-d");
 
 */
 
-/*$_SESSION['ADMINS_MANGER'] = new AdminsManger($db_connection);
+if(!isset($_SESSION['ADMINS_MANGER']))
+        $_SESSION['ADMINS_MANGER'] = new AdminsManger($db_connection);
+    else 
+        $_SESSION['ADMINS_MANGER']->refresh_db_connection($db_connection);
 
 $admin = new Admin();
 
@@ -66,7 +69,7 @@ $admin->username = "bogaag";
 $admin->password = "fodadag";
 $admin->is_ceo   = TRUE;
 
-//$_SESSION['ADMINS_MANGER']->add($admin);
+$_SESSION['ADMINS_MANGER']->add($admin);
 
 /*if($_SESSION['ADMINS_MANGER']->auth("bogaag" , "fodadag") != NULL)
     echo 'FOUND';

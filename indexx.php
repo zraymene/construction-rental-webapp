@@ -2,6 +2,7 @@
 /*
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
+
     $install_file = "install.php";
     
     if(file_exists($install_file))
@@ -26,6 +27,6 @@
     <title>INDEX</title>
 </head>
 <body>
-    
+    MAIN INDEX
 </body>
 </html>

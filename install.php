@@ -8,11 +8,11 @@ require_once("admin/database/db_connect.php");
 if( $_SERVER['REQUEST_METHOD'] == 'POST' )
 {
 
-    require_once("admin/systems.php");
+    require_once("admin/core/systems.php");
 
     session_start();
 
-    $_SESSION['ADMINS_MANGER'] = new AdminsManger($db_connection);
+    refresh_mangers(ADMINS_MANGER_FLAG,$db_connection);
 
     $admin = new Admin();
     $admin->username = $_POST['username'];
@@ -21,7 +21,8 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' )
 
     if($_SESSION['ADMINS_MANGER']->add($admin) == NULL)
     {
-        echo 'Error while adding admin !';
+    
+        LOG_ERROR('Error while adding admin !',__LINE__ , __FILE__);
         header("Location:install.php");
     }
 
@@ -71,21 +72,15 @@ $queries = array(
        ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8"
 );
 
-$start = microtime(true);
-
 foreach ($queries as $query) {
 
     if (!$db_connection->query($query))
     {
-        echo $db_connection->error . "<br>";
+        LOG_ERROR($db_connection->error,__LINE__ , __FILE__);
         continue;
     }
 
 }
-$elapsed = microtime(true) - $start;
-
-echo 'Elapsed time : '.$elapsed;
-
 
 ?>
 <!DOCTYPE html>
@@ -97,13 +92,14 @@ echo 'Elapsed time : '.$elapsed;
 </head>
 <body>
 
-    <form method="POST" action="install.php" onsubmit="verify_data">
-        <label for="username_id">Username:</label><br>
-        <input name="username" type="text" id="username_id"> <br>
-        <label for="password_id">Password:</label><br>
-        <input name="password" type="password" id="password_id"><br>
+    <form name="auth_form" method="POST" action="install.php" onsubmit="verify_data();">
+        <label for="username_field">Username:</label><br>
+        <input name="username" type="text" id="username_field"> <br>
+        <label for="password_field">Password:</label><br>
+        <input name="password" type="password" id="password_field"><br>
         <input type="submit" value="Register" id="submit_btn">
     </form>
-
+    
+    <script src="js/scripts.js"></script>
 </body>
 </html>
