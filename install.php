@@ -3,7 +3,7 @@
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
 
-require_once("admin/database/db_connect.php");
+require_once("admin/core/db_connect.php");
 
 if( $_SERVER['REQUEST_METHOD'] == 'POST' )
 {
@@ -92,7 +92,7 @@ foreach ($queries as $query) {
 </head>
 <body>
 
-    <form name="auth_form" method="POST" action="install.php" onsubmit="verify_data();">
+    <form name="auth_form" method="POST" action="install.php" onsubmit="verify_data(this);">
         <label for="username_field">Username:</label><br>
         <input name="username" type="text" id="username_field"> <br>
         <label for="password_field">Password:</label><br>

@@ -1,7 +1,7 @@
 <?php
 
-require_once("database/db_connect.php");
-require_once("core/systems.php");
+require_once("core/db_connect.php");
+//require_once("core/systems.php");
 /*
 $_SESSION['CLIENTS_MANGER'] = new ClientsManger($db_connection);
 
@@ -24,7 +24,7 @@ $client->list_rents = array(50 , 10 , 56, 65);
 echo $_SESSION['CLIENTS_MANGER']->delete(4);
 */
 
-$_SESSION['MATERIALS_MANGER'] = new MaterialsManger($db_connection);
+/*$_SESSION['MATERIALS_MANGER'] = new MaterialsManger($db_connection);
 
 $mat = new Material();
 
@@ -39,6 +39,8 @@ $mat->image_path    = "PDF.png";
 //echo $_SESSION['MATERIALS_MANGER']->add($mat);
 
 //$_SESSION['MATERIALS_MANGER']->delete(6);
+
+var_dump($_SESSION['MATERIALS_MANGER']->select_id(6));
 
 /*$_SESSION['RENTS_MANGER'] = new RentsManger($db_connection);
 
@@ -58,18 +60,18 @@ $rent->deadline       = date("Y-m-d");
 
 */
 
-if(!isset($_SESSION['ADMINS_MANGER']))
+/*if(!isset($_SESSION['ADMINS_MANGER']))
         $_SESSION['ADMINS_MANGER'] = new AdminsManger($db_connection);
     else 
         $_SESSION['ADMINS_MANGER']->refresh_db_connection($db_connection);
 
 $admin = new Admin();
 
-$admin->username = "bogaag";
-$admin->password = "fodadag";
+$admin->username = "root";
+$admin->password = "";
 $admin->is_ceo   = TRUE;
-
-$_SESSION['ADMINS_MANGER']->add($admin);
+*/
+//$_SESSION['ADMINS_MANGER']->add($admin);
 
 /*if($_SESSION['ADMINS_MANGER']->auth("bogaag" , "fodadag") != NULL)
     echo 'FOUND';
@@ -78,4 +80,30 @@ else
 */
 
 //$_SESSION['ADMINS_MANGER']->delete(2);
+
+function func($data , $size = 1)
+{
+    $new_query = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
+
+    if($size != 1)
+    {
+        $new_query .= "IN (?";
+        
+        for($i = 1 ; $i < $size ; $i++)
+        {
+            $new_query .= ",?";
+        }
+        $new_query .= ")";
+
+    }else
+    {
+        $new_query .= "= ?";
+    }
+
+    return $new_query;
+}
+
+echo func(3) . "<br>";
+
+echo func(array(5,6,1) , 3);
 

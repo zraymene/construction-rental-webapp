@@ -2,7 +2,7 @@
 /*
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
-require_once("../database/db_connect.php");
+require_once("../core/db_connect.php");
 require_once("../core/systems.php");
 
 session_start();
@@ -17,8 +17,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 {
     refresh_mangers(ADMINS_MANGER_FLAG,$db_connection);
 
-    if( ( $_SESSION['admin'] = $_SESSION['ADMINS_MANGER']->auth($_POST['username'], $_POST['password']) ) != NULL)
+    $admin = $_SESSION['ADMINS_MANGER']->auth($_POST['username'], $_POST['password']);
+
+    if( $admin != NULL)
     {
+        $_SESSION['admin'] = $admin;
         header("Location:../");
     }else
     {
@@ -37,7 +40,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 </head>
 <body>
 
-    <form name="auth_form" method="POST" action="login.php" onsubmit="verify_data();">
+    <form name="auth_form" method="POST" action="login.php" onsubmit="verify_data(this);">
         <label for="username_field">Username:</label><br>
         <input name="username" type="text" id="username_field"> <br>
         <label for="password_field">Password:</label><br>
@@ -46,6 +49,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     </form>
 
     <p><?php echo $error?></p>
-    <script src="../js/scripts.js"></script>
+    <script src="../../js/scripts.js"></script>
 </body>
 </html>

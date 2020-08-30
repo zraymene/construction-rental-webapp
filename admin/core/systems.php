@@ -51,6 +51,7 @@ abstract class AbstractManger
     protected $add_query ;
     protected $delete_id_query;
     protected $select_id_query;
+    protected $select_range_query;
 
     protected $db_connection;
 
@@ -67,6 +68,28 @@ abstract class AbstractManger
         $this->db_connection = $dbconnection;
     }
 
+    // Returns result table ; NULL on failure
+    public function select_range_id($offset, $count)
+    {
+        $ps = $this->db_connection->prepare($this->select_range_query); 
+
+        if(!$ps)
+        {
+            echo $this->db_connection->error;
+            return NULL;
+        }
+
+        $ps->bind_param("ii", $offset, $count);
+
+        if(!$ps->execute())
+        {
+            $ps->close();
+            return NULL;
+        }
+
+        return $ps->get_result();
+    }
+
     // Returns wanted object , NULL on failure
     public function select_id($id)
     {
@@ -75,7 +98,7 @@ abstract class AbstractManger
         if(!$ps)
         {
             echo $this->db_connection->error;
-            return FALSE;
+            return NULL;
         }
 
         $ps->bind_param("i",$id);
@@ -88,14 +111,15 @@ abstract class AbstractManger
 
         $res = $ps->get_result()->fetch_assoc();
 
-        $ps->close();
+        if($res == NULL)
+        {
+            $ps->close();
             return NULL;
-
-        $obj = $this->create_object($res);
+        }
 
         $ps->close();
 
-        return $obj;
+        return $this->create_object($res);
     }
 
     // Returns 1 on success ; NULL on failure
@@ -106,27 +130,54 @@ abstract class AbstractManger
         if(!$ps)
         {
             echo $this->db_connection->error;
-            return FALSE;
+            return NULL;
         }
 
 
         $this->bind_param($ps, $obj);
 
         $return = $ps->execute();
-
-        echo $this->db_connection->error;
         
         $ps->close();
 
         return $return;
     }
 
-    // Returns number of effected rows , 0 on failure
-    public function delete($id)
+    //Pass single id or array if ids Returns number of effected rows , 0 on failure
+    public function delete($id ,$size = 1)
     {
-        $ps = $this->db_connection->prepare($this->delete_id_query);
+        $new_query = $this->delete_id_query;
+        $bind_param_str = "i";
 
-        $ps->bind_param("i",$id);
+        if($size != 1)
+        {
+            $new_query     .= "IN (?";
+            
+            for($i = 1 ; $i < $size ; $i++)
+            {
+                $new_query      .= ",?";
+                $bind_param_str .= "i";
+            }
+            $new_query .= ")";
+
+            $id = array_map('intval', $id);
+
+        }else
+            $new_query .= "= ?";
+
+
+       // echo $new_query;
+        $ps = $this->db_connection->prepare($new_query);
+
+        if(!$ps)
+        {
+            echo $this->db_connection->error;
+            return NULL;
+        }
+
+
+        $ps->bind_param($bind_param_str,...$id);
+      //  call_user_func_array(array($ps, 'bind_param'), $id);
 
         $return = $ps->execute();
         $ps->close();
@@ -143,9 +194,10 @@ class MaterialsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `default_price`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?, ?);";
-        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
-        $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
+        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `default_price`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?, ?);";
+        $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
+        $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
+        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`materials` LIMIT ? , ?";
     }
 
     protected function create_object($res)
@@ -184,8 +236,9 @@ class ClientsManger extends AbstractManger
         parent::__construct($dbconnection);
 
         $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `list_rents`) VALUES ( ?, ?, ?, ?, ?);";
-        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
+        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` ";
         $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
+        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` LIMIT ? , ?";
     }
 
     protected function create_object($res)
@@ -229,8 +282,9 @@ class RentsManger extends AbstractManger
         parent::__construct($dbconnection);
 
         $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`rents` ( `client_id`, `material_id`, `price`, `creation_date`, `deadline_date`, `author_id`) VALUES ( ?, ?, ?, ?, ?, ?);";
-        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
+        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`rents` WHERE `id` ";
         $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
+        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` LIMIT ? , ?";
     }
 
     protected function create_object($res)
@@ -268,10 +322,10 @@ class AdminsManger extends AbstractManger
         parent::__construct($dbconnection);
 
         $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`admins` ( `username`, `password`, `is_ceo`) VALUES ( ?, ?, ?);";
-        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`admins` WHERE `id` = ?";
+        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`admins` WHERE `id` ";
         $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`admins` WHERE `id` = ?";
     }
-
+    
     protected function create_object($res)
     {
         $obj = new Admin();
@@ -336,6 +390,22 @@ class AdminsManger extends AbstractManger
         $ps->close();
 
         return $obj;
+    }
+
+    // Returns result table to fetch from ; Null on failure
+    public function select_all()
+    {
+        $query = "SELECT * FROM ". DATABASE_NAME .".`admins`";
+
+        $res = $this->db_connection->query($query);
+
+        if($res->num_rows <= 0 || $res == NULL)
+        {
+            echo $this->db_connection->error;
+            return NULL;
+        }
+
+        return $res;
     }
 }
 
