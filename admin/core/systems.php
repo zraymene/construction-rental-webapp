@@ -23,8 +23,8 @@ class Material
     var $default_price;
     var $num_rents;
     var $is_free;
-    var $list_clients;
-    var $image_path;
+    var $list_clients;  // client_id => number_pf_rents
+    var $image_path;    
 }
 
 class Rent 
@@ -52,6 +52,7 @@ abstract class AbstractManger
     protected $delete_id_query;
     protected $select_id_query;
     protected $select_range_query;
+    protected $update_id_query;
 
     protected $db_connection;
 
@@ -143,6 +144,29 @@ abstract class AbstractManger
         return $return;
     }
 
+    // Returns true on succes ; FALSE/NULL in failure
+    public function update($new_obj)
+    {
+        $ps = $this->db_connection->prepare($this->update_id_query);
+
+        if(!$ps)
+        {
+            echo $this->db_connection->error;
+            return NULL;
+        }
+        $this->bind_param($ps ,$new_obj);
+
+        if(!$ps->execute())
+        {
+            echo $this->db_connection->error;
+            return NULL;
+        }
+
+        $ps->close();
+
+        return TRUE;
+    }
+
     //Pass single id or array if ids Returns number of effected rows , 0 on failure
     public function delete($id ,$size = 1)
     {
@@ -165,8 +189,6 @@ abstract class AbstractManger
         }else
             $new_query .= "= ?";
 
-
-       // echo $new_query;
         $ps = $this->db_connection->prepare($new_query);
 
         if(!$ps)
@@ -175,9 +197,7 @@ abstract class AbstractManger
             return NULL;
         }
 
-
         $ps->bind_param($bind_param_str,...$id);
-      //  call_user_func_array(array($ps, 'bind_param'), $id);
 
         $return = $ps->execute();
         $ps->close();
@@ -198,6 +218,7 @@ class MaterialsManger extends AbstractManger
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
         $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`materials` LIMIT ? , ?";
+        $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`materials` SET `name` = ? , `default_price` = ? , `is_free` = ?, `list_clients` = ?, `image_path` = ? WHERE id = ?";
     }
 
     protected function create_object($res)
@@ -218,13 +239,24 @@ class MaterialsManger extends AbstractManger
     {
         $json_str = json_encode($obj->list_clients);  // To prevent pass by refrence warning in bin_parm 
 
+        if(!isset($obj->id))        // Means that we are adding
+        {
         $ps->bind_param("sdiss",
                     $obj->name,
                     $obj->default_price,
                     $obj->is_free,
                     $json_str,
                     $obj->image_path );
-
+        }else       // Means we are editing
+        {
+            $ps->bind_param("sdissi",
+                    $obj->name,
+                    $obj->default_price,
+                    $obj->is_free,
+                    $json_str,
+                    $obj->image_path,
+                    $obj->id );
+        }
     }
 }
 
@@ -235,10 +267,11 @@ class ClientsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `list_rents`) VALUES ( ?, ?, ?, ?, ?);";
-        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` ";
-        $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
+        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `list_rents`) VALUES ( ?, ?, ?, ?, ?);";
+        $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` ";
+        $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
         $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` LIMIT ? , ?";
+        $this->delete_id_query    = "UPDATE ". DATABASE_NAME .".`clients` SET `first_name` = ?, `last_name` = ?, `email` = ?, `phone` = ?, `list_rents` = ? WHERE `id` = ?";
     }
 
     protected function create_object($res)
@@ -259,6 +292,8 @@ class ClientsManger extends AbstractManger
     {
         $json_str = json_encode($obj->list_rents);  // To prevent pass by refrence warning in bin_parm 
 
+        if(!isset($obj->id))        // Means that we are adding
+        {
         $ps->bind_param('sssss',
                     $obj->first_name,
                     $obj->last_name,
@@ -266,7 +301,17 @@ class ClientsManger extends AbstractManger
                     $obj->phone,
                     $json_str
                 );
-
+        }else 
+        {
+            $ps->bind_param('sssssi',
+                    $obj->first_name,
+                    $obj->last_name,
+                    $obj->email,
+                    $obj->phone,
+                    $json_str,
+                    $obj->id
+                );
+        }
     }
 
     public function select_range($start , $end)
@@ -281,10 +326,11 @@ class RentsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`rents` ( `client_id`, `material_id`, `price`, `creation_date`, `deadline_date`, `author_id`) VALUES ( ?, ?, ?, ?, ?, ?);";
-        $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`rents` WHERE `id` ";
-        $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
+        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`rents` ( `client_id`, `material_id`, `price`, `creation_date`, `deadline_date`, `author_id`) VALUES ( ?, ?, ?, ?, ?, ?);";
+        $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`rents` WHERE `id` ";
+        $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
         $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` LIMIT ? , ?";
+        $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`rents` SET `client_id` = ?, `material_id` = ?, `price` = ?, `creation_date` = ?, `deadline_date` = ?, `author_id` = ? WHERE `id` = ?";
     }
 
     protected function create_object($res)
@@ -304,6 +350,8 @@ class RentsManger extends AbstractManger
 
     protected function bind_param($ps, $obj)
     {
+        if(!isset($obj->id))        // Means that we are adding
+        {
         $ps->bind_param("iidss",
                     $obj->client_id,
                     $obj->material_id,
@@ -311,7 +359,17 @@ class RentsManger extends AbstractManger
                     $obj->creation_date,
                     $obj->deadline_date,
                     $obj->author_id);
-
+        }else {
+            $ps->bind_param("iidssi",
+                    $obj->client_id,
+                    $obj->material_id,
+                    $obj->price,
+                    $obj->creation_date,
+                    $obj->deadline_date,
+                    $obj->author_id,
+                    $obj->id
+                );
+        }
     }
 }
 
@@ -324,6 +382,7 @@ class AdminsManger extends AbstractManger
         $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`admins` ( `username`, `password`, `is_ceo`) VALUES ( ?, ?, ?);";
         $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`admins` WHERE `id` ";
         $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`admins` WHERE `id` = ?";
+        $this->update_id_query = "UPDATE ". DATABASE_NAME .".`admins` SET `username` = ?, `password` = ? WHERE `id` = ?";
     }
     
     protected function create_object($res)
@@ -340,13 +399,20 @@ class AdminsManger extends AbstractManger
 
     protected function bind_param($ps, $obj)
     {
-        $hashed_pass = password_hash($obj->password, PASSWORD_DEFAULT);
-
-        $ps->bind_param("ssi",
+        if(isset($obj->id))        // Means that we are adding
+        {
+            $ps->bind_param("ssi",
+                        $obj->username,
+                        $obj->password,
+                        $obj->id);
+        }else{
+            $hashed_pass = password_hash($obj->password, PASSWORD_DEFAULT);
+            $ps->bind_param("ssi",
                     $obj->username,
                     $hashed_pass,
-                    $obj->is_ceo);
-
+                    $obj->ceo
+                );
+        }
     }
 
     public function auth($username , $password)

@@ -80,7 +80,7 @@ function admin_edit_form_submit(edit_form)
     else if(check_empty(user) && !check_empty(pass))
         obj.password = pass;
 
-    edit_form['id']             = obj.id;
+    edit_form['id'].value       = obj.id;
     edit_form["username"].value = obj.username;
     edit_form["password"].value = obj.password;
 }   

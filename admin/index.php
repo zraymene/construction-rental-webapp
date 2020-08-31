@@ -47,12 +47,37 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
              echo "<pre>";
             print_r($_POST);
             echo "</pre>";
+
+            echo "<pre>";
+            print_r(password_get_info($_POST['password']));
+            echo "</pre>";
+            $pass = $_POST['password'];
+
+            if(!password_get_info($pass)['algo'])
+            {
+                echo 'grgrgr <br>';
+                $pass = password_hash($pass , PASSWORD_DEFAULT);
+            }
+
+            echo $pass;
+
+            $tmp_obj = new Admin();
+            $tmp_obj->id       = $_POST['id'];
+            $tmp_obj->username = $_POST['username'];
+            $tmp_obj->password = $pass;
+
+            if(!$_SESSION['ADMINS_MANGER']->update($tmp_obj))
+                $info = "Error while editing admin!";
+            else
+                $info = "Admin edited sccesfully!";
+
+            $tmp_obj = null;
             break;
         case "delete":
             if(!$_SESSION['ADMINS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
                       $info = "Error while deleting admin!";
                     else
-                     $info = "Admin deleted usccesfully!";
+                     $info = "Admin deleted sccesfully!";
             
             break;
     }
@@ -72,9 +97,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <div id="global_wraper" style="width:300px;margin:auto;">
         <h1>Admins table:</h1>
         <ul>
-            <li><a href="#">Rents</a></li>
-            <li><a href="#">Materials</a></li>
-            <li><a href="#">Clients</a></li>
+            <li><a href="rents/">Rents</a></li>
+            <li><a href="materials/">Materials</a></li>
+            <li><a href="clients">Clients</a></li>
             <li><a href="#">Admins</a></li>
         </ul>
         
@@ -137,7 +162,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             <h4>Edit account:</h4>
             <form name="auth_form" method="POST" action="#" onsubmit="admin_edit_form_submit(this);">
                 <input type="hidden" name="action_type" value="edit" />
-                <input type="hidden" name="id" value="id" />
+                <input type="hidden" name="id" value="0" />
                 <label for="username_field">New Username:</label><br>
                 <input name="username" type="text" class="username_field"> <br>
                 <label for="password_field">New Password:</label><br>
