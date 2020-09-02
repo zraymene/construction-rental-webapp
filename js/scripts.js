@@ -27,7 +27,7 @@ function verify_data(wanted_form)
 function admin_edit_form_submit(edit_form)
 {
 
-    var checkboxes  = document.getElementById('admins_table').getElementsByTagName('INPUT');
+    var checkboxes  = document.getElementById('elements_table').getElementsByTagName('INPUT');
 
     var counter = 0;
     var obj = {
@@ -87,11 +87,9 @@ function admin_edit_form_submit(edit_form)
 
 function delete_form_submit()
 {
-    var checkboxes  = document.getElementById('admins_table').getElementsByTagName('INPUT');
+    var checkboxes  = document.getElementById('elements_table').getElementsByTagName('INPUT');
     var delete_form = document.forms['delete_form'];
     var num_ids     = 0;
-    var list_ids    = Array(); 
-
 
     for(var i = 0; i < checkboxes.length ; i++)
     {
@@ -125,3 +123,11 @@ function toggle_display(val)
   }
 }
  
+function verify_material_data(add_form)
+{
+    if(check_empty(add_form["mat_name"].value))
+    {
+        alert("Material name is undefined !");
+        event.preventDefault();
+    }
+}

@@ -70,25 +70,24 @@ abstract class AbstractManger
     }
 
     // Returns result table ; NULL on failure
-    public function select_range_id($offset, $count)
+    // I had to not use prepared statment because they seems don't work with LIMIT 
+    public function select_limit($offset, $count)
     {
-        $ps = $this->db_connection->prepare($this->select_range_query); 
+        $query = $this->select_range_query . "{$offset},{$count}";
 
-        if(!$ps)
+        if(!($ps = $this->db_connection->query($query))) 
+        {
+            echo $this->db_connection->error;
+            return NULL;
+        }
+   
+        if($ps->num_rows <= 0 )
         {
             echo $this->db_connection->error;
             return NULL;
         }
 
-        $ps->bind_param("ii", $offset, $count);
-
-        if(!$ps->execute())
-        {
-            $ps->close();
-            return NULL;
-        }
-
-        return $ps->get_result();
+        return $ps;
     }
 
     // Returns wanted object , NULL on failure
@@ -217,7 +216,7 @@ class MaterialsManger extends AbstractManger
         $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `default_price`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?, ?);";
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
-        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`materials` LIMIT ? , ?";
+        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`materials` LIMIT ";
         $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`materials` SET `name` = ? , `default_price` = ? , `is_free` = ?, `list_clients` = ?, `image_path` = ? WHERE id = ?";
     }
 
@@ -270,7 +269,7 @@ class ClientsManger extends AbstractManger
         $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `list_rents`) VALUES ( ?, ?, ?, ?, ?);";
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
-        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` LIMIT ? , ?";
+        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` BETWEEN ? AND ?";
         $this->delete_id_query    = "UPDATE ". DATABASE_NAME .".`clients` SET `first_name` = ?, `last_name` = ?, `email` = ?, `phone` = ?, `list_rents` = ? WHERE `id` = ?";
     }
 
@@ -329,7 +328,7 @@ class RentsManger extends AbstractManger
         $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`rents` ( `client_id`, `material_id`, `price`, `creation_date`, `deadline_date`, `author_id`) VALUES ( ?, ?, ?, ?, ?, ?);";
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`rents` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
-        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` LIMIT ? , ?";
+        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` BETWEEN ? AND ?";
         $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`rents` SET `client_id` = ?, `material_id` = ?, `price` = ?, `creation_date` = ?, `deadline_date` = ?, `author_id` = ? WHERE `id` = ?";
     }
 

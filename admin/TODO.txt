@@ -1,7 +1,7 @@
 • DONE : Add applciation installationg when the site
              is used for the first time
-• Add Admin login page / Control panel
-
+• DONE : Add Admin login page / Control panel
+• Materials Page : FIX Deletition and add edit functionality
 WARNING :
     • Edit redirecting url on release (fix urls who have /pro/)
     • install.php will be delete when using the site for the first time

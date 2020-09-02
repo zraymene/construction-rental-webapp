@@ -43,14 +43,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
             break;
         case "edit":
-            // ADDDDDDDDDD MEEEEEEEEEEEEEEE YOU FUCKING CUNT 
-             echo "<pre>";
-            print_r($_POST);
-            echo "</pre>";
-
-            echo "<pre>";
-            print_r(password_get_info($_POST['password']));
-            echo "</pre>";
+    
             $pass = $_POST['password'];
 
             if(!password_get_info($pass)['algo'])
@@ -72,6 +65,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 $info = "Admin edited sccesfully!";
 
             $tmp_obj = null;
+
             break;
         case "delete":
             if(!$_SESSION['ADMINS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
@@ -120,7 +114,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
         <hr>
 
         <h1>Admins table:</h1>
-        <table id="admins_table" border=1>
+        <table id="elements_table" border=1>
             <tr>
                 <th></th>
                 <th>ID</th>
@@ -151,7 +145,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                         </tr>
                         ";
                 }
-                $res = $is_ceo = NULL;
+                $res->free_result();
+                $is_ceo = NULL;
             ?>
         </table>
         

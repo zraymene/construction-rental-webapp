@@ -16,7 +16,8 @@ define("CLIENTS_MANGER_FLAG"   , 0x4);
 define("LOG_FILE", "error_log.txt");
 
 define("NUMBER_ELEMENTS_PER_PAGE" , 10);
-define("IMG_DIR" , $_SERVER['HTTP_HOST'] . "/imgs/");
+
+define("IMG_MAX_SIZE" , 1000000);
 
 function LOG_ERROR($msg, $line, $file_name){
     error_log( date("[Y-m-d H:i:s] ") . "$msg - $file_name ($line) \n", 3, LOG_FILE);
