@@ -144,16 +144,63 @@ abstract class AbstractManger
     }
 
     // Returns true on succes ; FALSE/NULL in failure
+    // Now it doesn't update whole object fields 
+    // Update only set variables on $new_obj 
+    // id field is needed and it must be set !!
     public function update($new_obj)
-    {
-        $ps = $this->db_connection->prepare($this->update_id_query);
+    {   
+        $query = $this->update_id_query;
+        $arr = array();
+        $bind_param_str = "";
+        $count = 0;
 
-        if(!$ps)
+        foreach ($new_obj as $var => $val) {
+            if(isset($val) && $var != "id") {
+
+                switch(gettype($val))
+                {
+                    case "integer":
+                        $bind_param_str .= "i";
+                        break;
+                    case "double":
+                        $bind_param_str .= "d";
+                        break;
+                    case "string":
+                        $bind_param_str .= "s";
+                        break;
+                    case "boolean":
+                        $bind_param_str .= "i";
+                        break;
+                    case "array":
+                        $bind_param_str .= "s";
+                        $val = json_encode($val);
+                        break;
+
+                }
+
+                if($count == 0)
+                    $query .= "`{$var}` = ?";
+                else
+                    $query .= ",`{$var}` = ?";
+                
+                array_push($arr,$val);
+                $count++;
+            }
+
+        }
+
+        $query          .= " WHERE `id` = ?";
+        $bind_param_str .= "i";
+
+        array_push($arr , $new_obj->id);
+
+        if(!($ps = $this->db_connection->prepare($query)))
         {
             echo $this->db_connection->error;
             return NULL;
         }
-        $this->bind_param($ps ,$new_obj);
+
+        $ps->bind_param($bind_param_str , ...$arr);
 
         if(!$ps->execute())
         {
@@ -174,7 +221,7 @@ abstract class AbstractManger
 
         if($size != 1)
         {
-            $new_query     .= "IN (?";
+            $new_query .= "IN (?";
             
             for($i = 1 ; $i < $size ; $i++)
             {
@@ -217,7 +264,7 @@ class MaterialsManger extends AbstractManger
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
         $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`materials` LIMIT ";
-        $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`materials` SET `name` = ? , `default_price` = ? , `is_free` = ?, `list_clients` = ?, `image_path` = ? WHERE id = ?";
+        $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`materials` SET ";
     }
 
     protected function create_object($res)
@@ -246,14 +293,11 @@ class MaterialsManger extends AbstractManger
                     $obj->is_free,
                     $json_str,
                     $obj->image_path );
-        }else       // Means we are editing
+        }else                        // Means we are editing
         {
-            $ps->bind_param("sdissi",
+            $ps->bind_param("sdi",
                     $obj->name,
                     $obj->default_price,
-                    $obj->is_free,
-                    $json_str,
-                    $obj->image_path,
                     $obj->id );
         }
     }
@@ -270,7 +314,7 @@ class ClientsManger extends AbstractManger
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
         $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` BETWEEN ? AND ?";
-        $this->delete_id_query    = "UPDATE ". DATABASE_NAME .".`clients` SET `first_name` = ?, `last_name` = ?, `email` = ?, `phone` = ?, `list_rents` = ? WHERE `id` = ?";
+        $this->delete_id_query    = "UPDATE ". DATABASE_NAME .".`clients` SET ";
     }
 
     protected function create_object($res)
@@ -329,7 +373,7 @@ class RentsManger extends AbstractManger
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`rents` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
         $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` BETWEEN ? AND ?";
-        $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`rents` SET `client_id` = ?, `material_id` = ?, `price` = ?, `creation_date` = ?, `deadline_date` = ?, `author_id` = ? WHERE `id` = ?";
+        $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`rents` SET ";
     }
 
     protected function create_object($res)
@@ -381,7 +425,7 @@ class AdminsManger extends AbstractManger
         $this->add_query       = "INSERT INTO ". DATABASE_NAME .".`admins` ( `username`, `password`, `is_ceo`) VALUES ( ?, ?, ?);";
         $this->delete_id_query = "DELETE FROM ". DATABASE_NAME .".`admins` WHERE `id` ";
         $this->select_id_query = "SELECT * FROM ". DATABASE_NAME .".`admins` WHERE `id` = ?";
-        $this->update_id_query = "UPDATE ". DATABASE_NAME .".`admins` SET `username` = ?, `password` = ? WHERE `id` = ?";
+        $this->update_id_query = "UPDATE ". DATABASE_NAME .".`admins` SET ";
     }
     
     protected function create_object($res)

@@ -1,7 +1,7 @@
 <?php
 
-require_once("core/db_connect.php");
-//require_once("core/systems.php");
+//require_once("core/db_connect.php");
+require_once("core/systems.php");
 /*
 $_SESSION['CLIENTS_MANGER'] = new ClientsManger($db_connection);
 
@@ -81,29 +81,8 @@ else
 
 //$_SESSION['ADMINS_MANGER']->delete(2);
 
-function func($data , $size = 1)
-{
-    $new_query = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
+$obj = new Material();
 
-    if($size != 1)
-    {
-        $new_query .= "IN (?";
-        
-        for($i = 1 ; $i < $size ; $i++)
-        {
-            $new_query .= ",?";
-        }
-        $new_query .= ")";
+print_r($obj);
 
-    }else
-    {
-        $new_query .= "= ?";
-    }
-
-    return $new_query;
-}
-
-echo func(3) . "<br>";
-
-echo func(array(5,6,1) , 3);
-
+echo $obj[0];

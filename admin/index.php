@@ -62,16 +62,16 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             if(!$_SESSION['ADMINS_MANGER']->update($tmp_obj))
                 $info = "Error while editing admin!";
             else
-                $info = "Admin edited sccesfully!";
+                $info = "Admin edited succesfully!";
 
             $tmp_obj = null;
 
             break;
         case "delete":
             if(!$_SESSION['ADMINS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
-                      $info = "Error while deleting admin!";
-                    else
-                     $info = "Admin deleted sccesfully!";
+                $info = "Error while deleting admin!";
+            else
+                $info = "Admin deleted sccesfully!";
             
             break;
     }

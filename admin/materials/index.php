@@ -20,33 +20,61 @@ if(!isset($_SESSION['admin']))   // Check if admin is already loged in
 
 $info = "";
 
+function check_img($file , $is_edit = false , $old_img_name = "")
+{
+    if(empty($file['name']))
+        return IMG_MAT_DEFAULT;
+
+    $img_name = "";
+    $img_ext = strtolower(pathinfo(basename($file["name"]),PATHINFO_EXTENSION));
+
+    if(!$is_edit)
+        $img_name = uniqid("material-",true) . "." . $img_ext;
+    else {
+
+        if(strcmp($old_img_name , IMG_MAT_DEFAULT) != 0)
+        {
+            if(!unlink("imgs/{$old_img_name}"))
+                echo "Error while deleting images!";
+        }
+
+        $old_img_name = explode("."  ,$old_img_name );
+        $img_name .= "{$old_img_name[0]}.{$old_img_name[1]}." . $img_ext; 
+       
+    }
+
+    $output_file = "imgs/" . $img_name;
+
+    if(!getimagesize($file["tmp_name"])) {
+        $info = "File is not an image.";
+        return IMG_MAT_DEFAULT;
+    }
+
+    if ($file["size"] > IMG_MAX_SIZE) {
+        $info = "Sorry, your file is too large.";
+        return IMG_MAT_DEFAULT;
+    }
+
+    if($img_ext != "jpg" && $img_ext != "png" && $img_ext != "jpeg"){
+        $info = "Only JPG, JPEG, PNG files are allowed.";
+        return IMG_MAT_DEFAULT;
+    }
+
+    if (!move_uploaded_file($file["tmp_name"], $output_file)) {
+        $info = "There was an error uploading your file.";
+        return IMG_MAT_DEFAULT;
+    }
+    
+    return $img_name;
+}
+
 if($_SERVER["REQUEST_METHOD"] == "POST")
 {
     switch($_POST['action_type'])
     {
-        case "add":
-            $img_name = "";
-
-            if(!empty($_FILES['mat_img']['name'])){
-                $img_ext = strtolower(pathinfo(basename($_FILES['mat_img']["name"]),PATHINFO_EXTENSION));
-                $img_name = uniqid("material-",true) . "." . $img_ext;
-                $output_file = "imgs/" . $img_name;
-
-                if(!getimagesize($_FILES['mat_img']["tmp_name"])) 
-                    $info = "File is not an image.";
-                
-                if ($_FILES['mat_img']["size"] > IMG_MAX_SIZE) 
-                    $info = "Sorry, your file is too large.";
-
-                if($img_ext != "jpg" && $img_ext != "png" && $img_ext != "jpeg") 
-                $info = "Only JPG, JPEG, PNG files are allowed.";
-
-                if (!move_uploaded_file($_FILES['mat_img']["tmp_name"], $output_file))
-                $info = "There was an error uploading your file.";
-            }
-            if($info == "")           // Info is means there is an error , set to default img       
-                $img_name = "default.jpg";
-
+        case "add":        
+            $img_name = check_img($_FILES['mat_img'] );
+            
             $mat = new Material();
             $mat->name          = $_POST['mat_name'];
             $mat->default_price = $_POST['mat_dprice'];
@@ -64,12 +92,45 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             break;
         case "edit":
             
+            $new_mat = new Material();
+            $new_mat->id            = $_POST['id'];
+            $new_mat->name          = $_POST['mat_name'];
+            $new_mat->default_price = $_POST['mat_dprice'];
+            
+            if($_FILES['mat_img']['size'] != 0) 
+            {
+        
+                $img_name = $_POST['mat_img_name'];
+
+                if(!strcmp($img_name , IMG_MAT_DEFAULT))
+                    $new_mat->image_path = check_img($_FILES['mat_img']);
+                else
+                    $new_mat->image_path = check_img($_FILES['mat_img'] , true ,$img_name);
+            }
+
+            if($_SESSION['MATERIALS_MANGER']->update($new_mat))
+                $info = "Material edited usccesfully!";
+            else
+                $info = "Error while edited new Material !";
+
+            $new_mat = NULL;
+
             break;
         case "delete":
+
+            foreach($_POST['name_imgs'] as $img)
+            {
+                if(strcmp($img , IMG_MAT_DEFAULT))
+                {
+                   if(!unlink("imgs/".$img))
+                       echo "Error while deleting images!";
+                }
+            }
+
             if(!$_SESSION['MATERIALS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
                 $info = "Error while deleting materials!";
             else
-                $info = "Materials deleted sccesfully!";
+                $info = "Materials deleted succesfully!";
             break;
     }
 }
@@ -167,7 +228,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                                 <td> {$is_free} </td>
                                 <td>". count($clients_list) ."</td>
                                 <td> {$cl_html} </td>
-                                <td><img src='imgs/{$row['image_path']}' alt='{$row['name']}'></td>
+                                <td><img src='imgs/{$row['image_path']}' alt='{$row['image_path']}'></td>
                             </tr>
                             ";
                     }
@@ -179,13 +240,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
         </table><br>
         <p><?php echo (isset($_GET['page_num']) ?  $_GET['page_num'] : "1"). "/TOTAL_PAGES" ; ?></p>
         <button type="button" onclick="toggle_display('edit_admin_wraper');">Edit</button>
-        <button type="button" onclick="delete_form_submit();">Delete</button>
+        <button type="button" onclick="delete_form_submit(true);">Delete</button>
 
         <div id="edit_admin_wraper" hidden>
             <h4>Edit material:</h4>
-            <form name="auth_form" method="POST" action="#" onsubmit="admin_edit_form_submit(this);">
+            <form name="auth_form" method="POST" action="#" onsubmit="material_edit_form_submit(this);" enctype="multipart/form-data">
                 <input type="hidden" name="action_type" value="edit" />
                 <input type="hidden" name="id" value="0" />
+                <input type="hidden" name="mat_img_name" value="default.png"/>
                 <label for="name_field">New Material name:</label><br>
                 <input name="mat_name" type="text" class="name_field"> <br>
                 <label for="price_field">New Default price:</label><br>
