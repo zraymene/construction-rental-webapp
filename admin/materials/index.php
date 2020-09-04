@@ -155,9 +155,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <div id="global_wraper" style="width:300px;margin:auto;">
         <h1>Materials table:</h1>
         <ul>
-            <li><a href="rents/">Rents</a></li>
+            <li><a href="../rents/">Rents</a></li>
             <li><a href="#">Materials</a></li>
-            <li><a href="clients/">Clients</a></li>
+            <li><a href="../clients/">Clients</a></li>
             <li><a href="../">Admins</a></li>
         </ul>
         
@@ -238,7 +238,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             }
             ?>
         </table><br>
-        <p><?php echo (isset($_GET['page_num']) ?  $_GET['page_num'] : "1"). "/TOTAL_PAGES" ; ?></p>
+        <p><?php 
+
+                echo (isset($_GET['page_num']) ?  $_GET['page_num'] : "1"). "/" . round( ($_SESSION['MATERIALS_MANGER']->get_total_rows_count() / NUMBER_ELEMENTS_PER_PAGE) + 0.5);
+            ?></p>
         <button type="button" onclick="toggle_display('edit_admin_wraper');">Edit</button>
         <button type="button" onclick="delete_form_submit(true);">Delete</button>
 

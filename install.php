@@ -68,6 +68,7 @@ $queries = array(
         `price` double NOT NULL DEFAULT 0,
         `creation_date` datetime NOT NULL,
         `deadline_date` date NOT NULL,
+        `author_id` INT(11) NOT NULL,
         PRIMARY KEY (`id`)
        ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8"
 );

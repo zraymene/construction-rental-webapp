@@ -1,7 +1,12 @@
-• DONE : Add applciation installationg when the site
+• DONE : Add application installationg when the site
              is used for the first time
 • DONE : Add Admin login page / Control panel
-• Materials Page : FIX Deletition and add edit functionality
+• DONE : Materials Page : FIX Deletition and add edit functionality
+• Complete Rents page
+• Complete Client/Materials table
+• Fix admins editing issues where send every instead the wanted field 
+• Add before/next table page functionality 
+
 WARNING :
     • Edit redirecting url on release (fix urls who have /pro/)
     • install.php will be delete when using the site for the first time

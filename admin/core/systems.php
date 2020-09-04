@@ -53,6 +53,7 @@ abstract class AbstractManger
     protected $select_id_query;
     protected $select_range_query;
     protected $update_id_query;
+    protected $count_total_rows_query;
 
     protected $db_connection;
 
@@ -67,6 +68,18 @@ abstract class AbstractManger
     public function refresh_db_connection($dbconnection)    // Reconnect if connection is closed
     {
         $this->db_connection = $dbconnection;
+    }
+
+    public function get_total_rows_count()
+    {
+        if( ($res = $this->db_connection->query($this->count_total_rows_query)) == null )
+        {
+            echo $this->db_connection->error;
+            return 0;
+        }
+
+        return $res->fetch_assoc()['total'];
+
     }
 
     // Returns result table ; NULL on failure
@@ -155,7 +168,7 @@ abstract class AbstractManger
         $count = 0;
 
         foreach ($new_obj as $var => $val) {
-            if(isset($val) && $var != "id") {
+            if(!empty($val) && isset($val) && $var != "id") {
 
                 switch(gettype($val))
                 {
@@ -194,6 +207,9 @@ abstract class AbstractManger
 
         array_push($arr , $new_obj->id);
 
+        echo "<br>{$query} <br>". var_dump($arr);
+
+        
         if(!($ps = $this->db_connection->prepare($query)))
         {
             echo $this->db_connection->error;
@@ -209,6 +225,7 @@ abstract class AbstractManger
         }
 
         $ps->close();
+
 
         return TRUE;
     }
@@ -260,11 +277,12 @@ class MaterialsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `default_price`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?, ?);";
-        $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
-        $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
-        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`materials` LIMIT ";
-        $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`materials` SET ";
+        $this->add_query              = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `default_price`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?, ?);";
+        $this->delete_id_query        = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
+        $this->select_id_query        = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
+        $this->select_range_query     = "SELECT * FROM ". DATABASE_NAME .".`materials` LIMIT ";
+        $this->update_id_query        = "UPDATE ". DATABASE_NAME .".`materials` SET ";
+        $this->count_total_rows_query = "SELECT count(*) AS total FROM ". DATABASE_NAME .".`materials`";
     }
 
     protected function create_object($res)
@@ -313,8 +331,9 @@ class ClientsManger extends AbstractManger
         $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `list_rents`) VALUES ( ?, ?, ?, ?, ?);";
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
-        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` BETWEEN ? AND ?";
-        $this->delete_id_query    = "UPDATE ". DATABASE_NAME .".`clients` SET ";
+        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` LIMIT ";
+        $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`clients` SET ";
+        $this->count_total_rows_query = "SELECT count(*) AS total FROM ". DATABASE_NAME .".`clients`";
     }
 
     protected function create_object($res)
@@ -372,8 +391,9 @@ class RentsManger extends AbstractManger
         $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`rents` ( `client_id`, `material_id`, `price`, `creation_date`, `deadline_date`, `author_id`) VALUES ( ?, ?, ?, ?, ?, ?);";
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`rents` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
-        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` BETWEEN ? AND ?";
+        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`rents` LIMIT ";
         $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`rents` SET ";
+        $this->count_total_rows_query = "SELECT count(*) AS total FROM ". DATABASE_NAME .".`rents`";
     }
 
     protected function create_object($res)

@@ -31,8 +31,6 @@ function material_edit_form_submit(edit_form)
     var counter = 0;
     var obj = {
         id         : 0,
-        mat_name   : "",
-        mat_dprice : "",
         mat_img_name : ""
     };
 
@@ -43,8 +41,6 @@ function material_edit_form_submit(edit_form)
             if(counter == 0)        // Pick the first one and wish the user didn't check more then 1 
             {
                 obj.id           = checkboxes[i].parentNode.parentNode.cells[1].innerHTML;
-                obj.mat_name     = checkboxes[i].parentNode.parentNode.cells[2].innerHTML;
-                obj.mat_dprice   = checkboxes[i].parentNode.parentNode.cells[3].innerHTML; 
                 obj.mat_img_name = checkboxes[i].parentNode.parentNode.cells[7].childNodes[0].alt;
 
             }
@@ -69,8 +65,6 @@ function material_edit_form_submit(edit_form)
     var mat_name   = edit_form['mat_name'].value;
     var mat_dprice = edit_form['mat_dprice'].value;
 
-    console.log(edit_form['mat_img'].files.length);
-
     if ( check_empty(mat_name) && check_empty(mat_dprice) && edit_form['mat_img'].files.length == 0) 
     {
         alert("Those fields won't fill on thier own !");
@@ -78,19 +72,8 @@ function material_edit_form_submit(edit_form)
         return;
     }
     
-    if(!check_empty(mat_name))
-        obj.mat_name = mat_name;
-    
-    if(!check_empty(mat_dprice))
-        obj.mat_dprice = mat_dprice;
-
     edit_form['id'].value           = obj.id;
-    edit_form["mat_name"].value     = obj.mat_name;
-    edit_form["mat_dprice"].value   = obj.mat_dprice;
     edit_form["mat_img_name"].value = obj.mat_img_name;
-
-    console.log(obj);
-   //event.preventDefault();
 }
 
 function admin_edit_form_submit(edit_form)
@@ -100,11 +83,7 @@ function admin_edit_form_submit(edit_form)
     var checkboxes  = document.getElementById('elements_table').getElementsByTagName('INPUT');
 
     var counter = 0;
-    var obj = {
-        id : 0,
-        username : "",
-        password : ""
-    };
+    var id;
 
     for(var i = 0; i < checkboxes.length ; i++)
     {
@@ -112,9 +91,7 @@ function admin_edit_form_submit(edit_form)
         {
             if(counter == 0)        // Pick the first one and wish the user didn't check more then 1 
             {
-                obj.id       = checkboxes[i].parentNode.parentNode.cells[1].innerHTML;
-                obj.username = checkboxes[i].parentNode.parentNode.cells[2].innerHTML;
-                obj.password = checkboxes[i].parentNode.parentNode.cells[3].innerHTML;
+                id = checkboxes[i].parentNode.parentNode.cells[1].innerHTML;
             }
             counter++;
         }
@@ -143,16 +120,58 @@ function admin_edit_form_submit(edit_form)
         event.preventDefault();
         return;
     }
-    
-    if(!check_empty(user) && check_empty(pass))
-        obj.username = user;
-    else if(check_empty(user) && !check_empty(pass))
-        obj.password = pass;
 
-    edit_form['id'].value       = obj.id;
-    edit_form["username"].value = obj.username;
-    edit_form["password"].value = obj.password;
+    edit_form['id'].value = id;
 }   
+
+function clients_edit_form_submit(edit_form)
+{
+    var checkboxes  = document.getElementById('elements_table').getElementsByTagName('INPUT');
+
+    var counter = 0;
+    var client_id;
+
+    for(var i = 0; i < checkboxes.length ; i++)
+    {
+        if(checkboxes[i].checked )
+        {
+            if(counter == 0)        // Pick the first one and wish the user didn't check more then 1 
+            {
+                client_id = checkboxes[i].parentNode.parentNode.cells[1].innerHTML;
+            }
+            counter++;
+        }
+    }
+
+    if(counter == 0)
+    {
+        alert("Pick a row ... Faggot !");
+        event.preventDefault();
+        return;
+    }
+
+    if(counter > 1)     // Great , he picked more then 1 
+    {
+        alert("Pick only one ... Faggot !");
+        event.preventDefault();
+        return;
+    }
+
+    var first_name = edit_form["first_name"].value;
+    var last_name  = edit_form["last_name"].value;
+    var email      = edit_form["email"].value;
+    var phone      = edit_form["phone"].value;
+
+    if ( check_empty(first_name) && check_empty(last_name) && check_empty(email) && check_empty(phone)) 
+    {
+        alert("Those fields won't fill on thier own !");
+        event.preventDefault();
+        return;
+    }
+    
+    edit_form['id'].value = client_id;
+
+}
 
 function delete_form_submit(is_imgs_included = false)
 {
@@ -201,6 +220,17 @@ function toggle_display(val)
     } else {
         x.style.display = "none";
   }
+}
+
+function verify_client_data(add_form)
+{
+    if(check_empty(add_form["first_name"].value) || check_empty(add_form["last_name"].value
+       || check_empty(add_form["email"].value) || check_empty(add_form["phone"].value)
+    ))
+    {
+        alert("Material name is undefined !");
+        event.preventDefault();
+    }
 }
  
 function verify_material_data(add_form)
