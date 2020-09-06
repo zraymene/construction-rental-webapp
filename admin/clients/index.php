@@ -88,7 +88,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     </style>
 </head>
 <body>
-    <div id="global_wraper" style="width:300px;margin:auto;">
+    <div id="global_wraper" style="">
         <h1>CLIENTS table:</h1>
         <ul>
             <li><a href="../rents/">Rents</a></li>
@@ -127,7 +127,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 <th>Email</th>
                 <th>Phone</th>
                 <th>Number of Rents</th>
-                <th>Rents list</th>
             </tr>
             <?php 
                 $start = 0;
@@ -146,11 +145,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     {  
                         $rents_list = json_decode($row['list_rents']);
 
-                        if($rents_list != null){
-                            foreach($rents_list as $id => $num) {
-                                $rents_html .= "Client {$id} rented {$num} time <br>";
-                            }
-                        }
                         echo "<tr>\n<td><input type=\"checkbox\"/></td>
                                 <td>{$row['id']}</td>
                                 <td>{$row['first_name']}</td>
@@ -158,13 +152,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                                 <td>{$row['email']}</td>
                                 <td>{$row['phone']}</td>
                                 <td>". count($rents_list) ."</td>
-                                <td> {$rents_html} </td>
                             </tr>
                             ";
                     }
 
                     $res->free_result();
-                    $cl_html = $rents_list = NULL;
             }
             ?>
         </table><br>

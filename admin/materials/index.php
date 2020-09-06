@@ -152,7 +152,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     </style>
 </head>
 <body>
-    <div id="global_wraper" style="width:300px;margin:auto;">
+    <div id="global_wraper" >
         <h1>Materials table:</h1>
         <ul>
             <li><a href="../rents/">Rents</a></li>
@@ -217,10 +217,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                         }
 
                         if($clients_list != null){
-                            foreach($clients_list as $id => $num) {
-                                $cl_html .= "Client {$id} rented {$num} time <br>";
+                            $tmp_arr = array();
+
+                            foreach($clients_list as $id) {
+                                if(array_key_exists($id,$tmp_arr))
+                                    $tmp_arr[$id] += 1;
+                                else
+                                    $tmp_arr[$id] = 1;
+                            }
+
+                            foreach($tmp_arr as $id => $num) {
+                                $client   = $_SESSION['CLIENTS_MANGER']->select_id($id);
+
+                                $cl_html .= "Client : {$client->first_name} {$client->last_name}, rented {$num} time <br>";
+                                
+                                $client = null;
                             }
                         }
+
                         echo "<tr>\n<td><input type=\"checkbox\"/></td>
                                 <td>{$row['id']}</td>
                                 <td>{$row['name']}</td>
@@ -243,7 +257,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 echo (isset($_GET['page_num']) ?  $_GET['page_num'] : "1"). "/" . round( ($_SESSION['MATERIALS_MANGER']->get_total_rows_count() / NUMBER_ELEMENTS_PER_PAGE) + 0.5);
             ?></p>
         <button type="button" onclick="toggle_display('edit_admin_wraper');">Edit</button>
-        <button type="button" onclick="delete_form_submit(true);">Delete</button>
+        <button type="button" onclick="delete_form_submit(1);">Delete</button>
 
         <div id="edit_admin_wraper" hidden>
             <h4>Edit material:</h4>

@@ -12,7 +12,7 @@ class Client
     var $last_name;
     var $email;
     var $phone;
-    var $num_rent;
+    var $num_rent;          // Rents IDs
     var $list_rents;
 }
 
@@ -23,7 +23,7 @@ class Material
     var $default_price;
     var $num_rents;
     var $is_free;
-    var $list_clients;  // client_id => number_pf_rents
+    var $list_clients;      // Clients IDs
     var $image_path;    
 }
 
@@ -135,7 +135,7 @@ abstract class AbstractManger
         return $this->create_object($res);
     }
 
-    // Returns 1 on success ; NULL on failure
+    // Returns new db generated id on success ; NULL on failure
     public function add($obj)
     {
         $ps = $this->db_connection->prepare($this->add_query);
@@ -149,8 +149,10 @@ abstract class AbstractManger
 
         $this->bind_param($ps, $obj);
 
-        $return = $ps->execute();
+        $ps->execute();
         
+        $return = $ps->insert_id;
+
         $ps->close();
 
         return $return;
@@ -168,36 +170,38 @@ abstract class AbstractManger
         $count = 0;
 
         foreach ($new_obj as $var => $val) {
-            if(!empty($val) && isset($val) && $var != "id") {
-
-                switch(gettype($val))
+            if( (!empty($val) && gettype($val) != "array") || isset($val)) {
+                if($var != "id")    // I was forced to add this condition alone , because it won't work if it is in the IF above
                 {
-                    case "integer":
-                        $bind_param_str .= "i";
-                        break;
-                    case "double":
-                        $bind_param_str .= "d";
-                        break;
-                    case "string":
-                        $bind_param_str .= "s";
-                        break;
-                    case "boolean":
-                        $bind_param_str .= "i";
-                        break;
-                    case "array":
-                        $bind_param_str .= "s";
-                        $val = json_encode($val);
-                        break;
+                    switch(gettype($val))
+                    {
+                        case "integer":
+                            $bind_param_str .= "i";
+                            break;
+                        case "double":
+                            $bind_param_str .= "d";
+                            break;
+                        case "string":
+                            $bind_param_str .= "s";
+                            break;
+                        case "boolean":
+                            $bind_param_str .= "i";
+                            break;
+                        case "array":
+                            $bind_param_str .= "s";
+                            $val = json_encode($val);
+                            break;
 
+                    }
+
+                    if($count == 0)
+                        $query .= "`{$var}` = ?";
+                    else
+                        $query .= ",`{$var}` = ?";
+                    
+                    array_push($arr,$val);
+                    $count++;
                 }
-
-                if($count == 0)
-                    $query .= "`{$var}` = ?";
-                else
-                    $query .= ",`{$var}` = ?";
-                
-                array_push($arr,$val);
-                $count++;
             }
 
         }
@@ -413,26 +417,14 @@ class RentsManger extends AbstractManger
 
     protected function bind_param($ps, $obj)
     {
-        if(!isset($obj->id))        // Means that we are adding
-        {
-        $ps->bind_param("iidss",
+        $ps->bind_param("iidssi",
                     $obj->client_id,
                     $obj->material_id,
                     $obj->price,
                     $obj->creation_date,
                     $obj->deadline_date,
                     $obj->author_id);
-        }else {
-            $ps->bind_param("iidssi",
-                    $obj->client_id,
-                    $obj->material_id,
-                    $obj->price,
-                    $obj->creation_date,
-                    $obj->deadline_date,
-                    $obj->author_id,
-                    $obj->id
-                );
-        }
+   
     }
 }
 

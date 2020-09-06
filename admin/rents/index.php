@@ -25,22 +25,53 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     switch($_POST['action_type'])
     {
         case "add":        
+            $rent = new Rent();
+            $rent->client_id     = $_POST['client_id'];
+            $rent->material_id   = $_POST['material_id'];
+            $rent->price         = $_POST['price'];
+            $rent->creation_date = date("Y-m-d G:i:s");
+            $rent->deadline_date = $_POST['deadline'];
+            $rent->author_id     = $_SESSION['admin']->id;
             
-            
+            if(($res = $_SESSION['RENTS_MANGER']->add($rent))){
+
+                // Add the new added rent id to Client's rents list
+                $client   = $_SESSION['CLIENTS_MANGER']->select_id($rent->client_id );
+                array_push($client->list_rents, $res); 
+                $new_cl = new Client();
+                $new_cl->id         = $client->id;
+                $new_cl->list_rents = $client->list_rents;
+                $_SESSION['CLIENTS_MANGER']->update($new_cl);
+
+                // Add client's id to material's clients list
+                $material = $_SESSION['MATERIALS_MANGER']->select_id($rent->material_id);
+                array_push($material->list_clients, $client->id); 
+                $new_mat = new Material();
+                $new_mat->id           = $material->id;
+                $new_mat->list_clients = $material->list_clients;
+                $new_mat->is_free      = FALSE;
+                $_SESSION['MATERIALS_MANGER']->update($new_mat);
+
+                $material = $client = null;
+
+            }else
+                $info = "Error while deleting rent!";
+
+            $rent = null;
+
             break;
         case "edit":
 
             $new_rent = new Rent();
-            $new_rent->id         = $_POST['id'];
-            $new_rent->first_name = $_POST['first_name'];
-            $new_rent->last_name  = $_POST['last_name'];
-            $new_rent->email      = $_POST['email'];
-            $new_rent->phone      = $_POST['phone'];
+            $new_rent->id            = $_POST['id'];
+            $new_rent->price         = $_POST['price'];
+            $new_rent->deadline_date = $_POST['deadline'];
+            $new_rent->author_id     = $_SESSION['admin']->id;
 
             if($_SESSION['RENTS_MANGER']->update($new_rent))
-                $info = "Client edited usccesfully!";
+                $info = "Rent edited usccesfully!";
             else
-                $info = "Error while editing Client !";
+                $info = "Error while editing rent !";
 
             $new_rent = NULL;
            
@@ -49,8 +80,49 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
             if(!$_SESSION['RENTS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
                 $info = "Error while deleting clients!";
-            else
+            else{
+
+                for($i = 0 ; $i <  $_POST['num_ids'] ; $i++)
+                {
+                    
+                    // Delete rent's id from client's rents list
+                    $client = $_SESSION['CLIENTS_MANGER']->select_id($_POST["clients_ids"][$i]);
+                    if (($key = array_search($_POST['list_ids'][$i] , $client->list_rents)) !== false) {
+
+                        unset($client->list_rents[$key]);
+
+                        if(count($client->list_rents) == 0)
+                            $client->list_rents = array();
+
+                        $new_cl = new Client();
+                        $new_cl->id         = $client->id;
+                        $new_cl->list_rents = $client->list_rents;
+                        $_SESSION['CLIENTS_MANGER']->update($new_cl);
+                    }
+
+                    // Delete client's id from material's clients list
+                    $material = $_SESSION['MATERIALS_MANGER']->select_id($_POST["materials_ids"][$i]);
+                    if (($key = array_search($client->id , $material->list_clients)) !== false) {
+
+                        unset($material->list_clients[$key]);
+
+                        var_dump($material->list_clients);
+
+                        if(count($material->list_clients) == 0)
+                            $material->list_clients = array();
+
+                        $new_mat = new Material();
+                        $new_mat->id           = $material->id;
+                        $new_mat->list_clients = $material->list_clients;
+                        $new_mat->is_free      = TRUE;
+                        $_SESSION['MATERIALS_MANGER']->update($new_mat);
+                    }
+
+                    $material = $client = null;
+                }
+
                 $info = "Client deleted succesfully!";
+            }
          
             break;
     }
@@ -65,6 +137,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RENTS CONTROL PANEL</title>
     <script src="../../js/scripts.js"></script>
+    
     <style>
         img {
             width : 100px;
@@ -73,7 +146,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     </style>
 </head>
 <body>
-    <div id="global_wraper" style="width:300px;margin:auto;">
+    <div id="global_wraper" >
         <h1>Rents table:</h1>
         <ul>
             <li><a href="#">Rents</a></li>
@@ -87,25 +160,45 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
         <p><?php echo $info?></p>
 
         <h1>Add new Rent:</h1>
-        <form name="material_form" method="POST" action="index.php" onsubmit="verify_client_data(this);" enctype="multipart/form-data">
+        <form name="material_form" method="POST" action="index.php" onsubmit="verify_rent_data(this);" enctype="multipart/form-data">
             <input type="hidden" name="action_type" value="add" />
   
             <label for="price_field">Price :</label><br>
-            <input name="price" type="number" class="price_field" ><br>
+            <input name="price" type="number" class="price_field" min="1" step="any"><br>
 
             <label for="client_field">Client :</label><br>
-            <input list="clients" name="client_id" class="client_field">
-            <datalist id="clients">
-                <option value="Edge">
-                <option value="Firefox">
-            </datalist><br>
+            <select id="clients" name="client_id" class="client_field">
+               <option value="0">Choose a Client</option>
+                <?php
+                    $res = $_SESSION['CLIENTS_MANGER']->select_limit(0 , 100);
+                    
+                    if( $res != NULL)
+                    {
+                        while($row = $res->fetch_array())
+                        {  
+                            echo "<option value=\"{$row["id"]}\">{$row["first_name"]} {$row["last_name"]} | {$row["email"]}</option>";
+                        }
+                    }
+                ?>
+            </select><br>
 
             <label for="material_field">Material :</label><br>
-            <input list="materials" name="material_id" class="material_field">
-            <datalist id="materials">
-                <option value="Edge">
-                <option value="Firefox">
-            </datalist><br>
+            <select id="materials" name="material_id" class="material_field">
+                <option value="0">Choose a Material</option>
+                <?php
+                    $res = $_SESSION['MATERIALS_MANGER']->select_limit(0 , 100);
+                    
+                    if( $res != NULL)
+                    {
+                        while($row = $res->fetch_array())
+                        {  
+                   
+                            if($row['is_free'])
+                                echo "<option value=\"{$row["id"]}\">{$row["name"]}</option>";
+                        }
+                    }
+                ?>
+            </select><br>
 
             <label for="deadline_field">Deadline :</label><br>
             <input type="date" name="deadline" class="deadline_field">
@@ -166,12 +259,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
                         echo "<tr>\n<td><input type=\"checkbox\"/></td>
                                 <td>{$row['id']}</td>
-                                <td id=\"{$client->id}\">{{$client->first_name} {$client->last_name}</td>
-                                <td id=\"{$material->id}\">{{$material->name}</td>
+                                <td id=\"{$client->id}\">{$client->first_name} {$client->last_name}</td>
+                                <td id=\"{$material->id}\">{$material->name}</td>
                                 <td>{$row['price']}</td>
                                 <td>{$row['creation_date']}</td>
                                 <td>{$row['deadline_date']}</td>
-                                <td>{$admin->name}</td>
+                                <td>{$admin->username}</td>
                             </tr>
                             ";
 
@@ -188,34 +281,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 echo (isset($_GET['page_num']) ?  $_GET['page_num'] : "1"). "/" . round( ($_SESSION['CLIENTS_MANGER']->get_total_rows_count() / NUMBER_ELEMENTS_PER_PAGE) + 0.5);
             ?></p>
         <button type="button" onclick="toggle_display('edit_wraper');">Edit</button>
-        <button type="button" onclick="delete_form_submit();">Delete</button>
+        <button type="button" onclick="delete_form_submit(2);">Delete</button>
 
         <div id="edit_wraper" hidden>
             <h4>Edit clients:</h4>
-            <form name="auth_form" method="POST" action="#" onsubmit="clients_edit_form_submit(this);" enctype="multipart/form-data">
+            <form name="auth_form" method="POST" action="#" onsubmit="rents_edit_form_submit(this);" enctype="multipart/form-data">
                 <input type="hidden" name="action_type" value="edit" />
                 <input type="hidden" name="id" value="0" />
 
                 <label for="price_field">Price :</label><br>
-                <input name="price" type="number" class="price_field" ><br>
-
-                <label for="client_field">Client :</label><br>
-                <input list="clients" name="client_id" class="client_field">
-                <datalist id="clients">
-                    <option value="Edge">
-                    <option value="Firefox">
-                </datalist><br>
-
-                <label for="material_field">Material :</label><br>
-                <input list="materials" name="material_id" class="material_field">
-                <datalist id="materials">
-                    <option value="Edge">
-                    <option value="Firefox">
-                </datalist><br>
+                <input name="price" type="number" class="price_field" min="1" step="any"><br>
 
                 <label for="deadline_field">Deadline :</label><br>
-                <input type="date" name="deadline" class="deadline_field">
-                <input type="submit" value="Add" class="submit_btn">
+                <input type="date" name="deadline" class="deadline_field"><br>
+                <input type="submit" value="Edit" class="submit_btn">
             </form>
         </div>
         <hr>

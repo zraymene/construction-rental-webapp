@@ -2,8 +2,8 @@
              is used for the first time
 • DONE : Add Admin login page / Control panel
 • DONE : Materials Page : FIX Deletition and add edit functionality
-• Complete Rents page
-• Complete Client/Materials table
+• DONE : Complete Rents page
+• DONE : Complete Client/Materials table
 • Fix admins editing issues where send every instead the wanted field 
 • Add before/next table page functionality 
 
