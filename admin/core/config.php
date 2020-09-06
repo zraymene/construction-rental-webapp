@@ -18,7 +18,7 @@ define("CLIENTS_MANGER_FLAG"   , 0x4);
 
 define("LOG_FILE", "error_log.txt");
 
-define("NUMBER_ELEMENTS_PER_PAGE" , 10);
+define("NUMBER_ELEMENTS_PER_PAGE" , 20);
 
 define("IMG_MAT_DEFAULT" , "default.jpg");
 define("IMG_MAX_SIZE" , 3000000);           // Bytes

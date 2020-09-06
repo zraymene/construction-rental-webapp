@@ -88,7 +88,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <script src="../js/scripts.js"></script>
 </head>
 <body>
-    <div id="global_wraper" style="width:300px;margin:auto;">
+    <div id="global_wraper">
         <h1>Admins table:</h1>
         <ul>
             <li><a href="rents/">Rents</a></li>

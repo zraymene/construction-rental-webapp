@@ -253,9 +253,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             ?>
         </table><br>
         <p><?php 
-
-                echo (isset($_GET['page_num']) ?  $_GET['page_num'] : "1"). "/" . round( ($_SESSION['MATERIALS_MANGER']->get_total_rows_count() / NUMBER_ELEMENTS_PER_PAGE) + 0.5);
+                $total_pages  = round( ($_SESSION['CLIENTS_MANGER']->get_total_rows_count() / NUMBER_ELEMENTS_PER_PAGE) + 0.5);
+                $current_page = intval((isset($_GET['page_num']) ?  $_GET['page_num'] : "1"));
+                echo $current_page . "/" . $total_pages;
             ?></p>
+        <button onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> >Previous</button>
+        <button onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>>After</button>
+        <br>
+        <br>
         <button type="button" onclick="toggle_display('edit_admin_wraper');">Edit</button>
         <button type="button" onclick="delete_form_submit(1);">Delete</button>
 
