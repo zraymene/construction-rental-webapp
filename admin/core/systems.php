@@ -149,10 +149,14 @@ abstract class AbstractManger
 
         $this->bind_param($ps, $obj);
 
-        $ps->execute();
+        if(!$ps->execute())
+        {
+            echo $this->db_connection->error;
+            return NULL;
+        }
         
         $return = $ps->insert_id;
-
+    
         $ps->close();
 
         return $return;
@@ -454,20 +458,14 @@ class AdminsManger extends AbstractManger
 
     protected function bind_param($ps, $obj)
     {
-        if(isset($obj->id))        // Means that we are adding
-        {
-            $ps->bind_param("ssi",
-                        $obj->username,
-                        $obj->password,
-                        $obj->id);
-        }else{
-            $hashed_pass = password_hash($obj->password, PASSWORD_DEFAULT);
-            $ps->bind_param("ssi",
+        $hashed_pass = password_hash($obj->password, PASSWORD_DEFAULT);
+
+        $ps->bind_param("ssi",
                     $obj->username,
                     $hashed_pass,
-                    $obj->ceo
-                );
-        }
+                    $obj->is_ceo
+        );
+        
     }
 
     public function auth($username , $password)

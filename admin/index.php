@@ -24,22 +24,24 @@ if(!$_SESSION['admin']->is_ceo)
     header("Location:rents/");  // Not CEO , Send him to rents page
 }
 
-$info = "";
+$info_msg = $error_msg = "";
+ 
 
 if($_SERVER["REQUEST_METHOD"] == "POST")
 {
     switch($_POST['action_type'])
     {
         case "add":
+
             $admin = new Admin();
             $admin->username = $_POST['username'];
             $admin->password = $_POST['password'];
             $admin->is_ceo   = FALSE;
             
             if($_SESSION['ADMINS_MANGER']->add($admin))
-                $info = "Admin added usccesfully!";
+                $info_msg = "Admin added usccesfully!";
             else
-                $info = "Error while adding admin !";
+                $error_msg = "Error while adding admin !";
 
             break;
         case "edit":
@@ -60,18 +62,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             $tmp_obj->password = $pass;
 
             if(!$_SESSION['ADMINS_MANGER']->update($tmp_obj))
-                $info = "Error while editing admin!";
+                $error_msg = "Error while editing admin!";
             else
-                $info = "Admin edited succesfully!";
+                $info_msg = "Admin edited succesfully!";
 
             $tmp_obj = null;
 
             break;
         case "delete":
+
             if(!$_SESSION['ADMINS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
-                $info = "Error while deleting admin!";
+                $error_msg = "Error while deleting admin!";
             else
-                $info = "Admin deleted sccesfully!";
+                $info_msg = "Admin deleted sccesfully!";
             
             break;
     }
@@ -86,34 +89,37 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN INDEX</title>
     <script src="../js/scripts.js"></script>
+    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-    <div id="global_wraper">
-        <h1>Admins table:</h1>
-        <ul>
-            <li><a href="rents/">Rents</a></li>
-            <li><a href="materials/">Materials</a></li>
-            <li><a href="clients">Clients</a></li>
-            <li><a href="#">Admins</a></li>
-        </ul>
-        
-        <hr>
+    <?php include("header.php"); ?>
+    
+    <div class="container">
+        <h1>Admins table</h1>
+        <?php 
+            $color = $msg = "";
 
-        <p><?php echo $info?></p>
+            if(empty($error_msg) && !empty($info_msg)) {
+                $color = "green";
+                $msg = $info_msg;
+            }else if(!empty($error_msg) && empty($info_msg)){
+                $color = "red";
+                $msg = $error_msg;
+            }
 
-        <h1>Add new admin:</h1>
-        <form name="auth_form" method="POST" action="index.php" onsubmit="verify_data(this);">
-        <input type="hidden" name="action_type" value="add" />
-            <label for="username_field">Username:</label><br>
-            <input name="username" type="text" class="username_field"> <br>
-            <label for="password_field">Password:</label><br>
-            <input name="password" type="password" class="password_field"><br>
-            <input type="submit" value="Add" class="submit_btn">
-        </form>
+            if(!empty($color))
+            {
+                echo "<div class=\"notfication-container notif-{$color}\">
+                        <div class=\"notif-icon\">
+                            <img />
+                        </div>
+                        <div class=\"notif-msg\">
+                            <p>{$msg}</p>
+                        </div>
+                      </div>";
+            }
+        ?>
 
-        <hr>
-
-        <h1>Admins table:</h1>
         <table id="elements_table" border=1>
             <tr>
                 <th></th>
@@ -150,32 +156,56 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             ?>
         </table>
         
-        <button type="button" onclick="toggle_display('edit_admin_wraper');">Edit</button>
-        <button type="button" onclick="delete_form_submit();">Delete</button>
-
-        <div id="edit_admin_wraper" hidden>
-            <h4>Edit account:</h4>
+        <div class="btns-wraper">
+            <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Edit</button>
+            <button type="button" onclick="toggle_display('add_wraper');" class="btn">Add</button>
+            <button type="button" onclick="delete_form_submit();" class="btn">Delete</button>
+        </div>
+    </div>
+    <div id="add_wraper" class="popup-container" hidden>        
+        <div class="container center" >
+            <h1>Add new admin</h1>
+            <form name="auth_form" method="POST" action="index.php" onsubmit="verify_data(this);">
+            <input type="hidden" name="action_type" value="add" />
+                <label for="username_field">Username:</label><br>
+                <input name="username" type="text" class="username_field input-field"> <br>
+                <label for="password_field">Password:</label><br>
+                <input name="password" type="password" class="password_field input-field"><br>
+                <div class="btns-wraper">
+                    <input type="submit" value="Add" class="btn">
+                    <button type="button" onclick="toggle_display('add_wraper');" class="btn">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <div id="edit_wraper" class="popup-container" hidden>    
+        <div class="container center" hidden>
+            <h1>Edit account</h4>
             <form name="auth_form" method="POST" action="#" onsubmit="admin_edit_form_submit(this);">
                 <input type="hidden" name="action_type" value="edit" />
                 <input type="hidden" name="id" value="0" />
                 <label for="username_field">New Username:</label><br>
-                <input name="username" type="text" class="username_field"> <br>
+                <input name="username" type="text" class="username_field input-field"> <br>
                 <label for="password_field">New Password:</label><br>
-                <input name="password" type="password" class="password_field"><br>
-                <input type="submit" value="Edit" class="submit_btn">
+                <input name="password" type="password" class="password_field input-field"><br>
+                <div class="btns-wraper">
+                    <input type="submit" value="Edit" class="btn">
+                    <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Cancel</button>
+                </div>
             </form>
         </div>
-        <hr>
-
-        <form name="delete_form" method="POST" action="index.php">
-            <input type="hidden" name="action_type" value="delete" />
-            <input type="hidden" name="num_ids" value="delete" />
-        </form>
-
-
-        <form method="POST" action="auth/logout.php">
-            <input type="submit" value="Logout" class="submit_btn">
-        </form>
     </div>
+
+    <form name="delete_form" method="POST" action="index.php">
+        <input type="hidden" name="action_type" value="delete" />
+        <input type="hidden" name="num_ids" value="delete" />
+    </form>
+
+
+    <form method="POST" action="auth/logout.php">
+        <input type="submit" value="Logout" class="btn">
+    </form>
+
 </body>
 </html>
