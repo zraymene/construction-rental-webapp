@@ -1,9 +1,99 @@
+
+/*
+ * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
+ */
+
 * {
     font-family: Arial, Helvetica, sans-serif;
 }
 
 body {
     background-color: #eeeeee;
+    margin: 0;
+}
+
+.topbar-wraper {
+    background-color: #ca3e47;
+    position: fixed;
+    box-shadow: 0px 0px 6px 0px grey;
+    height: 75px;
+    width: 100%;
+    top: 0;
+}
+
+.topbar-wraper img {
+    float: right;
+    height: 60px;
+    width: 60px;
+    margin-right: 15px;
+    margin-top: 6px;
+}
+
+.sidemenu-wraper {
+    background-color: #2f4b7c;
+    position: fixed;
+    top: 0;
+    width: 300px;
+    height: 100%;
+    float: left;
+    box-shadow: 1px 7px 6px 0px grey;
+}
+
+.sidemenu-wraper .sidemenu-title {
+    background-color: #253e6893;
+    height: 60px;
+    vertical-align: middle;
+    text-align: center;
+    padding-top: 15px;;
+}
+
+.sidemenu-wraper .sidemenu-title h1 {
+    color: white;
+    margin: 0;
+}
+
+.sidemenu-wraper a {
+    text-decoration: none;
+    display: table;
+    color: #dbdbdb;
+    font-weight: bold;
+    font-size: 20px;
+    transition-duration: 0.4s;
+    width: 100%;
+}
+
+.sidemenu-wraper .sidemenu-btn-icon {
+    display: table-cell;
+    width: 100px;
+}
+
+.sidemenu-wraper .sidemenu-btn-label {
+    display: table-cell;
+}
+
+
+.sidemenu-wraper a img {
+    vertical-align: middle;
+    width: 40px;
+    padding: 20px;
+}
+
+.sidemenu-wraper a:hover {
+    color: #313131;
+    background-color: #d6d6d6;
+}
+
+.sidemenu-wraper hr {
+    background-color: #eeeeee;
+    margin: 0;
+    border-width: 0;
+    height: 2px;
+}
+
+.content-wraper {
+    margin-top: 75px;
+    margin-left: 300px;
+    padding: 10px;
 }
 
 .btn {
@@ -28,6 +118,10 @@ body {
     color: black;
 }
 
+.btn:disabled {
+    background-color: #e7e7e7; 
+    color: black;
+}
 .btns-wraper {
     margin-top: 10px;
     width: 100%;
@@ -68,7 +162,7 @@ label {
 }
 
 table {
-    width : 50%;
+    width : 100%;
     margin: auto;
     box-shadow: 0px 0px 6px -2px grey;
     font-size: 20px;
@@ -84,6 +178,10 @@ th , td {
 th {
     color: white;
     background-color: #2f4b7c;
+}
+
+.table-small {
+    width: 50%;
 }
 
 .popup-container{
@@ -111,7 +209,6 @@ h1 {
 
 .notfication-container {
     display: table;
-    position: relative;
     margin: 40px auto 20px;
     width: 500px;
     color: #fff;
@@ -121,9 +218,7 @@ h1 {
 .notfication-container .notif-msg {
     display: table-cell;
     vertical-align: middle;
-
     font-size: px;
-    
 }
 
 .notfication-container .notif-icon {
@@ -156,4 +251,11 @@ h1 {
 .notif-red .notif-icon img{
     content: url("close.png");
 
+}
+
+.page-index {
+    text-align: center;
+    font-size: 25px;
+    font-weight: bold;
+    color: #2f4b7c;
 }

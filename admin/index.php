@@ -89,123 +89,120 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ADMIN INDEX</title>
     <script src="../js/scripts.js"></script>
-    <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
     <?php include("header.php"); ?>
-    
-    <div class="container">
-        <h1>Admins table</h1>
-        <?php 
-            $color = $msg = "";
 
-            if(empty($error_msg) && !empty($info_msg)) {
-                $color = "green";
-                $msg = $info_msg;
-            }else if(!empty($error_msg) && empty($info_msg)){
-                $color = "red";
-                $msg = $error_msg;
-            }
-
-            if(!empty($color))
-            {
-                echo "<div class=\"notfication-container notif-{$color}\">
-                        <div class=\"notif-icon\">
-                            <img />
-                        </div>
-                        <div class=\"notif-msg\">
-                            <p>{$msg}</p>
-                        </div>
-                      </div>";
-            }
-        ?>
-
-        <table id="elements_table" border=1>
-            <tr>
-                <th></th>
-                <th>ID</th>
-                <th>Username</th>
-                <th>Is CEO ?</th>
-            </tr>
+    <div class="content-wraper">
+        <div class="container">
+            <h1>Admins table</h1>
             <?php 
-                $res = $_SESSION['ADMINS_MANGER']->select_all();
+                $color = $msg = "";
 
-                $is_ceo = $checkbox = "";
-
-                while($row = $res->fetch_assoc())
-                {  
-
-                    if($row['is_ceo'])
-                    {
-                        $checkbox = "";
-                        $is_ceo = "YES";
-                    }else {
-                        $is_ceo = "NO";
-                        $checkbox = "<input type=\"checkbox\"/>";
-                    }
-                    echo "<tr>\n<td>{$checkbox}</td>
-                            <td>{$row['id']}</td>
-                            <td>{$row['username']}</td>
-                            <td hidden>{$row['password']}</td>
-                            <td>{$is_ceo}</td>
-                        </tr>
-                        ";
+                if(empty($error_msg) && !empty($info_msg)) {
+                    $color = "green";
+                    $msg = $info_msg;
+                }else if(!empty($error_msg) && empty($info_msg)){
+                    $color = "red";
+                    $msg = $error_msg;
                 }
-                $res->free_result();
-                $is_ceo = NULL;
+
+                if(!empty($color))
+                {
+                    echo "<div class=\"notfication-container notif-{$color}\">
+                            <div class=\"notif-icon\">
+                                <img />
+                            </div>
+                            <div class=\"notif-msg\">
+                                <p>{$msg}</p>
+                            </div>
+                        </div>";
+                }
             ?>
-        </table>
+
+            <table id="elements_table" class="table-small" border=1>
+                <tr>
+                    <th></th>
+                    <th>ID</th>
+                    <th>Username</th>
+                    <th>Is CEO ?</th>
+                </tr>
+                <?php 
+                    $res = $_SESSION['ADMINS_MANGER']->select_all();
+
+                    $is_ceo = $checkbox = "";
+
+                    while($row = $res->fetch_assoc())
+                    {  
+
+                        if($row['is_ceo'])
+                        {
+                            $checkbox = "";
+                            $is_ceo = "YES";
+                        }else {
+                            $is_ceo = "NO";
+                            $checkbox = "<input type=\"checkbox\"/>";
+                        }
+                        echo "<tr>\n<td>{$checkbox}</td>
+                                <td>{$row['id']}</td>
+                                <td>{$row['username']}</td>
+                                <td hidden>{$row['password']}</td>
+                                <td>{$is_ceo}</td>
+                            </tr>
+                            ";
+                    }
+                    $res->free_result();
+                    $is_ceo = NULL;
+                ?>
+            </table>
+            
+            <div class="btns-wraper">
+                <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Edit</button>
+                <button type="button" onclick="toggle_display('add_wraper');" class="btn">Add</button>
+                <button type="button" onclick="delete_form_submit();" class="btn">Delete</button>
+            </div>
+        </div>
+
+        <div id="add_wraper" class="popup-container" hidden>        
+            <div class="container center" >
+                <h1>Add new admin</h1>
+                <form name="auth_form" method="POST" action="index.php" onsubmit="verify_data(this);">
+                <input type="hidden" name="action_type" value="add" />
+                    <label for="username_field">Username:</label><br>
+                    <input name="username" type="text" class="username_field input-field"> <br>
+                    <label for="password_field">Password:</label><br>
+                    <input name="password" type="password" class="password_field input-field"><br>
+                    <div class="btns-wraper">
+                        <input type="submit" value="Add" class="btn">
+                        <button type="button" onclick="toggle_display('add_wraper');" class="btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
         
-        <div class="btns-wraper">
-            <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Edit</button>
-            <button type="button" onclick="toggle_display('add_wraper');" class="btn">Add</button>
-            <button type="button" onclick="delete_form_submit();" class="btn">Delete</button>
+        <div id="edit_wraper" class="popup-container" hidden>    
+            <div class="container center" hidden>
+                <h1>Edit account</h4>
+                <form name="auth_form" method="POST" action="#" onsubmit="admin_edit_form_submit(this);">
+                    <input type="hidden" name="action_type" value="edit" />
+                    <input type="hidden" name="id" value="0" />
+                    <label for="username_field">New Username:</label><br>
+                    <input name="username" type="text" class="username_field input-field"> <br>
+                    <label for="password_field">New Password:</label><br>
+                    <input name="password" type="password" class="password_field input-field"><br>
+                    <div class="btns-wraper">
+                        <input type="submit" value="Edit" class="btn">
+                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
         </div>
+
+        <form name="delete_form" method="POST" action="index.php">
+            <input type="hidden" name="action_type" value="delete" />
+            <input type="hidden" name="num_ids" value="delete" />
+        </form>
+
     </div>
-    <div id="add_wraper" class="popup-container" hidden>        
-        <div class="container center" >
-            <h1>Add new admin</h1>
-            <form name="auth_form" method="POST" action="index.php" onsubmit="verify_data(this);">
-            <input type="hidden" name="action_type" value="add" />
-                <label for="username_field">Username:</label><br>
-                <input name="username" type="text" class="username_field input-field"> <br>
-                <label for="password_field">Password:</label><br>
-                <input name="password" type="password" class="password_field input-field"><br>
-                <div class="btns-wraper">
-                    <input type="submit" value="Add" class="btn">
-                    <button type="button" onclick="toggle_display('add_wraper');" class="btn">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-    
-    <div id="edit_wraper" class="popup-container" hidden>    
-        <div class="container center" hidden>
-            <h1>Edit account</h4>
-            <form name="auth_form" method="POST" action="#" onsubmit="admin_edit_form_submit(this);">
-                <input type="hidden" name="action_type" value="edit" />
-                <input type="hidden" name="id" value="0" />
-                <label for="username_field">New Username:</label><br>
-                <input name="username" type="text" class="username_field input-field"> <br>
-                <label for="password_field">New Password:</label><br>
-                <input name="password" type="password" class="password_field input-field"><br>
-                <div class="btns-wraper">
-                    <input type="submit" value="Edit" class="btn">
-                    <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Cancel</button>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <form name="delete_form" method="POST" action="index.php">
-        <input type="hidden" name="action_type" value="delete" />
-        <input type="hidden" name="num_ids" value="delete" />
-    </form>
-
-
-    <form method="POST" action="auth/logout.php">
-        <input type="submit" value="Logout" class="btn">
-    </form>
-
 </body>
 </html>

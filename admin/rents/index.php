@@ -18,7 +18,7 @@ if(!isset($_SESSION['admin']))   // Check if admin is already loged in
     header("Location:../auth/login.php");
 }
 
-$info = "";
+$info_msg = $error_msg = "";
 
 if($_SERVER["REQUEST_METHOD"] == "POST")
 {
@@ -54,8 +54,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
                 $material = $client = null;
 
+                $info_msg = "Rent added successfully !";
             }else
-                $info = "Error while deleting rent!";
+                $error_msg = "Error while deleting rent!";
 
             $rent = null;
 
@@ -69,9 +70,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             $new_rent->author_id     = $_SESSION['admin']->id;
 
             if($_SESSION['RENTS_MANGER']->update($new_rent))
-                $info = "Rent edited usccesfully!";
+                $info_msg = "Rent edited successfully!";
             else
-                $info = "Error while editing rent !";
+                $error_msg = "Error while editing rent !";
 
             $new_rent = NULL;
            
@@ -79,7 +80,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
         case "delete":
 
             if(!$_SESSION['RENTS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
-                $info = "Error while deleting clients!";
+                $error_msg = "Error while deleting clients!";
             else{
 
                 for($i = 0 ; $i <  $_POST['num_ids'] ; $i++)
@@ -121,7 +122,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     $material = $client = null;
                 }
 
-                $info = "Client deleted succesfully!";
+                $info_msg = "Client deleted succesfully!";
             }
          
             break;
@@ -137,182 +138,192 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>RENTS CONTROL PANEL</title>
     <script src="../../js/scripts.js"></script>
-    
-    <style>
-        img {
-            width : 100px;
-            height : 100px;
-        }
-    </style>
 </head>
 <body>
-    <div id="global_wraper" >
-        <h1>Rents table:</h1>
-        <ul>
-            <li><a href="#">Rents</a></li>
-            <li><a href="../materials/">Materials</a></li>
-            <li><a href="../clients/">Clients</a></li>
-            <li><a href="../">Admins</a></li>
-        </ul>
-        
-        <hr>
+    <?php include("../header.php"); ?>
 
-        <p><?php echo $info?></p>
-
-        <h1>Add new Rent:</h1>
-        <form name="material_form" method="POST" action="index.php" onsubmit="verify_rent_data(this);" enctype="multipart/form-data">
-            <input type="hidden" name="action_type" value="add" />
-  
-            <label for="price_field">Price :</label><br>
-            <input name="price" type="number" class="price_field" min="1" step="any"><br>
-
-            <label for="client_field">Client :</label><br>
-            <select id="clients" name="client_id" class="client_field">
-               <option value="0">Choose a Client</option>
-                <?php
-                    $res = $_SESSION['CLIENTS_MANGER']->select_limit(0 , 100);
-                    
-                    if( $res != NULL)
-                    {
-                        while($row = $res->fetch_array())
-                        {  
-                            echo "<option value=\"{$row["id"]}\">{$row["first_name"]} {$row["last_name"]} | {$row["email"]}</option>";
-                        }
-                    }
-                ?>
-            </select><br>
-
-            <label for="material_field">Material :</label><br>
-            <select id="materials" name="material_id" class="material_field">
-                <option value="0">Choose a Material</option>
-                <?php
-                    $res = $_SESSION['MATERIALS_MANGER']->select_limit(0 , 100);
-                    
-                    if( $res != NULL)
-                    {
-                        while($row = $res->fetch_array())
-                        {  
-                   
-                            if($row['is_free'])
-                                echo "<option value=\"{$row["id"]}\">{$row["name"]}</option>";
-                        }
-                    }
-                ?>
-            </select><br>
-
-            <label for="deadline_field">Deadline :</label><br>
-            <input type="date" name="deadline" class="deadline_field">
-            <input type="submit" value="Add" class="submit_btn">
-        </form>
-
-        <hr>
-
-        <h1>Rents table:</h1>
-        <table id="elements_table" border=1>
-            <tr>
-                <th></th>
-                <th>ID</th>
-                <th>Client</th>
-                <th>Material</th>
-                <th>Price</th>
-                <th>Creation date</th>
-                <th>Deadline</th>
-                <th>Author</th>
-            </tr>
+    <div class="content-wraper">
+        <div class="container">
+            <h1>Rents table:</h1>
             <?php 
-                $start = 0;
-                
-                if(isset($_GET['page_num']))
-                    $start += ($_GET['page_num'] * NUMBER_ELEMENTS_PER_PAGE) + 1; 
+                    $color = $msg = "";
 
-                $res = $_SESSION['RENTS_MANGER']->select_limit($start , $start + NUMBER_ELEMENTS_PER_PAGE);
-                    
-                if( $res != NULL)
-                {
-                    $client;
-                    $material;
-                    $admin;
-
-                    while($row = $res->fetch_array())
-                    {  
-                        $place_holder = "";
-
-                        if( ($client   = $_SESSION['CLIENTS_MANGER']->select_id($row['client_id'])) == null) {
-                            $client = new Client();
-                            $client->id         = 0;
-                            $client->first_name = "NOT";
-                            $client->last_name  = "FOUND";
-                        }
-
-                        if( ($material = $_SESSION['MATERIALS_MANGER']->select_id($row['material_id'])) == null)
-                        {
-                            $material = new Material();
-                            $material->id   = 0;
-                            $material->name = "NOT FOUND";
-                        }
-
-                        if( ($admin = $_SESSION['ADMINS_MANGER']->select_id($row['author_id'])) == null)
-                        {
-                            $material = new Material();
-                            $admin->name = "NOT FOUND";
-                        }
-
-                        echo "<tr>\n<td><input type=\"checkbox\"/></td>
-                                <td>{$row['id']}</td>
-                                <td id=\"{$client->id}\">{$client->first_name} {$client->last_name}</td>
-                                <td id=\"{$material->id}\">{$material->name}</td>
-                                <td>{$row['price']}</td>
-                                <td>{$row['creation_date']}</td>
-                                <td>{$row['deadline_date']}</td>
-                                <td>{$admin->username}</td>
-                            </tr>
-                            ";
-
-                        $client = $material = $admin = null;
-
+                    if(empty($error_msg) && !empty($info_msg)) {
+                        $color = "green";
+                        $msg = $info_msg;
+                    }else if(!empty($error_msg) && empty($info_msg)){
+                        $color = "red";
+                        $msg = $error_msg;
                     }
 
-                    $res->free_result();
-            }
-            ?>
-        </table><br>
-        <p><?php 
-                $total_pages  = round( ($_SESSION['CLIENTS_MANGER']->get_total_rows_count() / NUMBER_ELEMENTS_PER_PAGE) + 0.5);
-                $current_page = intval((isset($_GET['page_num']) ?  $_GET['page_num'] : "1"));
-                echo $current_page . "/" . $total_pages;
-            ?></p>
-        <button onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> >Previous</button>
-        <button onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>>After</button>
-        <br>
-        <br>
-        <button type="button" onclick="toggle_display('edit_wraper');">Edit</button>
-        <button type="button" onclick="delete_form_submit(2);">Delete</button>
+                    if(!empty($color))
+                    {
+                        echo "<div class=\"notfication-container notif-{$color}\">
+                                <div class=\"notif-icon\">
+                                    <img />
+                                </div>
+                                <div class=\"notif-msg\">
+                                    <p>{$msg}</p>
+                                </div>
+                            </div>";
+                    }
+                ?>
+            <table id="elements_table" border=1>
+                <tr>
+                    <th></th>
+                    <th>ID</th>
+                    <th>Client</th>
+                    <th>Material</th>
+                    <th>Price</th>
+                    <th>Creation date</th>
+                    <th>Deadline</th>
+                    <th>Author</th>
+                </tr>
+                <?php 
+                    $start = 0;
+                    
+                    if(isset($_GET['page_num']))
+                        $start += ($_GET['page_num'] * NUMBER_ELEMENTS_PER_PAGE) + 1; 
 
-        <div id="edit_wraper" hidden>
-            <h4>Edit clients:</h4>
-            <form name="auth_form" method="POST" action="#" onsubmit="rents_edit_form_submit(this);" enctype="multipart/form-data">
-                <input type="hidden" name="action_type" value="edit" />
-                <input type="hidden" name="id" value="0" />
+                    $res = $_SESSION['RENTS_MANGER']->select_limit($start , $start + NUMBER_ELEMENTS_PER_PAGE);
+                        
+                    if( $res != NULL)
+                    {
+                        $client;
+                        $material;
+                        $admin;
 
-                <label for="price_field">Price :</label><br>
-                <input name="price" type="number" class="price_field" min="1" step="any"><br>
+                        while($row = $res->fetch_array())
+                        {  
+                            $place_holder = "";
 
-                <label for="deadline_field">Deadline :</label><br>
-                <input type="date" name="deadline" class="deadline_field"><br>
-                <input type="submit" value="Edit" class="submit_btn">
-            </form>
+                            if( ($client   = $_SESSION['CLIENTS_MANGER']->select_id($row['client_id'])) == null) {
+                                $client = new Client();
+                                $client->id         = 0;
+                                $client->first_name = "NOT";
+                                $client->last_name  = "FOUND";
+                            }
+
+                            if( ($material = $_SESSION['MATERIALS_MANGER']->select_id($row['material_id'])) == null)
+                            {
+                                $material = new Material();
+                                $material->id   = 0;
+                                $material->name = "NOT FOUND";
+                            }
+
+                            if( ($admin = $_SESSION['ADMINS_MANGER']->select_id($row['author_id'])) == null)
+                            {
+                                $material = new Material();
+                                $admin->name = "NOT FOUND";
+                            }
+
+                            echo "<tr>\n<td><input type=\"checkbox\"/></td>
+                                    <td>{$row['id']}</td>
+                                    <td id=\"{$client->id}\">{$client->first_name} {$client->last_name}</td>
+                                    <td id=\"{$material->id}\">{$material->name}</td>
+                                    <td>{$row['price']}</td>
+                                    <td>{$row['creation_date']}</td>
+                                    <td>{$row['deadline_date']}</td>
+                                    <td>{$admin->username}</td>
+                                </tr>
+                                ";
+
+                            $client = $material = $admin = null;
+
+                        }
+
+                        $res->free_result();
+                }
+                ?>
+            </table>
+            <p class="page-index"><?php 
+                    $total_pages  = round( ($_SESSION['CLIENTS_MANGER']->get_total_rows_count() / NUMBER_ELEMENTS_PER_PAGE) + 0.5);
+                    $current_page = intval((isset($_GET['page_num']) ?  $_GET['page_num'] : "1"));
+                    echo $current_page . " / " . $total_pages;
+                ?></p>
+            <div class="btns-wraper">
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> >Previous</button>
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>>Next</button>
+            </div>
+            <div class="btns-wraper">
+                <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Edit</button>
+                <button type="button" onclick="toggle_display('add_wraper');" class="btn">Add</button>
+                <button type="button" onclick="delete_form_submit(2);"class="btn">Delete</button>
+            </div>
         </div>
-        <hr>
+
+        <div id="add_wraper" class="popup-container" hidden>    
+            <div class="container center" hidden>
+                <form name="material_form" method="POST" action="index.php" onsubmit="verify_rent_data(this);" enctype="multipart/form-data">
+                    <input type="hidden" name="action_type" value="add" />
+                    <label for="price_field">Price :</label><br>
+                    <input name="price" type="number" class="price_field input-field" min="1" step="any"><br>
+                    <label for="client_field">Client :</label><br>
+                    <select id="clients" name="client_id" class="client_field input-field">
+                    <option value="0">Choose a Client</option>
+                        <?php
+                            $res = $_SESSION['CLIENTS_MANGER']->select_limit(0 , 100);
+                            
+                            if( $res != NULL)
+                            {
+                                while($row = $res->fetch_array())
+                                {  
+                                    echo "<option value=\"{$row["id"]}\">{$row["first_name"]} {$row["last_name"]} | {$row["email"]}</option>";
+                                }
+                            }
+                        ?>
+                    </select><br>
+                    <label for="material_field">Material :</label><br>
+                    <select id="materials" name="material_id" class="material_field input-field">
+                        <option value="0">Choose a Material</option>
+                        <?php
+                            $res = $_SESSION['MATERIALS_MANGER']->select_limit(0 , 100);
+                            
+                            if( $res != NULL)
+                            {
+                                while($row = $res->fetch_array())
+                                {  
+                        
+                                    if($row['is_free'])
+                                        echo "<option value=\"{$row["id"]}\">{$row["name"]}</option>";
+                                }
+                            }
+                        ?>
+                    </select><br>
+                    <label for="deadline_field">Deadline :</label><br>
+                    <input type="date" name="deadline" class="deadline_field input-field">
+                    <div class="btns-wraper">
+                        <input type="submit" value="Add" class="btn">
+                        <button type="button" onclick="toggle_display('add_wraper');" class="btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="edit_wraper" class="popup-container" hidden>
+            <div class="container center" hidden>
+            <h1>Add new admin</h1>
+                <form name="auth_form" method="POST" action="#" onsubmit="rents_edit_form_submit(this);" enctype="multipart/form-data">
+                    <input type="hidden" name="action_type" value="edit" />
+                    <input type="hidden" name="id" value="0" />
+                    <label for="price_field">Price :</label><br>
+                    <input name="price" type="number" class="price_field input-field" min="1" step="any"><br>
+                    <label for="deadline_field">Deadline :</label><br>
+                    <input type="date" name="deadline" class="deadline_field input-field"><br>
+                    <div class="btns-wraper">
+                        <input type="submit" value="Edit" class="btn">
+                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
 
         <form name="delete_form" method="POST" action="index.php">
             <input type="hidden" name="action_type" value="delete" />
             <input type="hidden" name="num_ids" value="delete" />
         </form>
 
-
-        <form method="POST" action="../auth/logout.php">
-            <input type="submit" value="Logout" class="submit_btn">
-        </form>
     </div>
 </body>
 </html>

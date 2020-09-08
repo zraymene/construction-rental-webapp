@@ -18,7 +18,7 @@ if(!isset($_SESSION['admin']))   // Check if admin is already loged in
     header("Location:../auth/login.php");
 }
 
-$info = "";
+$info_msg = $error_msg = "";
 
 function check_img($file , $is_edit = false , $old_img_name = "")
 {
@@ -35,7 +35,7 @@ function check_img($file , $is_edit = false , $old_img_name = "")
         if(strcmp($old_img_name , IMG_MAT_DEFAULT) != 0)
         {
             if(!unlink("imgs/{$old_img_name}"))
-                echo "Error while deleting images!";
+                $error_msg =  "Error while deleting images!";
         }
 
         $old_img_name = explode("."  ,$old_img_name );
@@ -46,22 +46,22 @@ function check_img($file , $is_edit = false , $old_img_name = "")
     $output_file = "imgs/" . $img_name;
 
     if(!getimagesize($file["tmp_name"])) {
-        $info = "File is not an image.";
+        $error_msg = "File is not an image.";
         return IMG_MAT_DEFAULT;
     }
 
     if ($file["size"] > IMG_MAX_SIZE) {
-        $info = "Sorry, your file is too large.";
+        $error_msg = "Sorry, your file is too large.";
         return IMG_MAT_DEFAULT;
     }
 
     if($img_ext != "jpg" && $img_ext != "png" && $img_ext != "jpeg"){
-        $info = "Only JPG, JPEG, PNG files are allowed.";
+        $error_msg = "Only JPG, JPEG, PNG files are allowed.";
         return IMG_MAT_DEFAULT;
     }
 
     if (!move_uploaded_file($file["tmp_name"], $output_file)) {
-        $info = "There was an error uploading your file.";
+        $error_msg = "There was an error uploading your file.";
         return IMG_MAT_DEFAULT;
     }
     
@@ -83,9 +83,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             $mat->image_path    = $img_name;
             
             if($_SESSION['MATERIALS_MANGER']->add($mat))
-                $info = "Material added usccesfully!";
+                $info_msg = "Material added usccesfully!";
             else
-                $info = "Error while adding new Material !";
+                $error_msg = "Error while adding new Material !";
 
             $mat = $img_ext = $img_name = $output_file = NULL;
 
@@ -109,9 +109,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             }
 
             if($_SESSION['MATERIALS_MANGER']->update($new_mat))
-                $info = "Material edited usccesfully!";
+                $info_msg = "Material edited usccesfully!";
             else
-                $info = "Error while edited new Material !";
+                $error_msg = "Error while edited new Material !";
 
             $new_mat = NULL;
 
@@ -128,9 +128,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             }
 
             if(!$_SESSION['MATERIALS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
-                $info = "Error while deleting materials!";
+                $error_msg = "Error while deleting materials!";
             else
-                $info = "Materials deleted succesfully!";
+                $info_msg = "Materials deleted succesfully!";
             break;
     }
 }
@@ -145,151 +145,176 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <title>MATERIAL CONTROL PANEL</title>
     <script src="../../js/scripts.js"></script>
     <style>
-        img {
+        table img {
             width : 100px;
             height : 100px;
         }
     </style>
+
 </head>
 <body>
-    <div id="global_wraper" >
-        <h1>Materials table:</h1>
-        <ul>
-            <li><a href="../rents/">Rents</a></li>
-            <li><a href="#">Materials</a></li>
-            <li><a href="../clients/">Clients</a></li>
-            <li><a href="../">Admins</a></li>
-        </ul>
-        
-        <hr>
+    <?php include("../header.php"); ?>
 
-        <p><?php echo $info?></p>
-
-        <h1>Add new Material:</h1>
-        <form name="material_form" method="POST" action="index.php" onsubmit="verify_material_data(this);" enctype="multipart/form-data">
-            <input type="hidden" name="action_type" value="add" />
-            <label for="name_field">Material name:</label><br>
-            <input name="mat_name" type="text" class="name_field"> <br>
-            <label for="price_field">Default price:</label><br>
-            <input name="mat_dprice" type="text" class="price_field" value="0"><br>
-            <label for="img_field">Image:</label><br>
-            <input name="mat_img" type="file" class="img_field" ><br>
-            <input type="submit" value="Add" class="submit_btn">
-        </form>
-
-        <hr>
-
-        <h1>Materials table:</h1>
-        <table id="elements_table" border=1>
-            <tr>
-                <th></th>
-                <th>ID</th>
-                <th>name</th>
-                <th>Default Price</th>
-                <th>Is free (Now)</th>
-                <th>Number of rents</th>
-                <th>Clients list</th>
-                <th>Image</th>
-            </tr>
+    <div class="content-wraper">
+        <div class="container">
+            <h1>Materials table:</h1>
             <?php 
-                $start = 0;
+                $color = $msg = "";
 
-                if(isset($_GET['page_num']))
-                    $start += ($_GET['page_num'] * NUMBER_ELEMENTS_PER_PAGE) + 1; 
+                if(empty($error_msg) && !empty($info_msg)) {
+                    $color = "green";
+                    $msg = $info_msg;
+                }else if(!empty($error_msg) && empty($info_msg)){
+                    $color = "red";
+                    $msg = $error_msg;
+                }
 
-                $res = $_SESSION['MATERIALS_MANGER']->select_limit($start , $start + NUMBER_ELEMENTS_PER_PAGE);
-                    
-                if( $res != NULL)
+                if(!empty($color))
                 {
-                    $is_free = $cl_html = "";
-                    $clients_list;
-
-                    while($row = $res->fetch_array())
-                    {  
-                        $clients_list = json_decode($row['list_clients']);
-
-                        if($row['is_free'])
-                        {
-                            $checkbox = "";
-                            $is_free = "YES";
-                        }else {
-                            $is_free = "NO";
-                        }
-
-                        if($clients_list != null){
-                            $tmp_arr = array();
-
-                            foreach($clients_list as $id) {
-                                if(array_key_exists($id,$tmp_arr))
-                                    $tmp_arr[$id] += 1;
-                                else
-                                    $tmp_arr[$id] = 1;
-                            }
-
-                            foreach($tmp_arr as $id => $num) {
-                                $client   = $_SESSION['CLIENTS_MANGER']->select_id($id);
-
-                                $cl_html .= "Client : {$client->first_name} {$client->last_name}, rented {$num} time <br>";
-                                
-                                $client = null;
-                            }
-                        }
-
-                        echo "<tr>\n<td><input type=\"checkbox\"/></td>
-                                <td>{$row['id']}</td>
-                                <td>{$row['name']}</td>
-                                <td>{$row['default_price']}</td>
-                                <td> {$is_free} </td>
-                                <td>". count($clients_list) ."</td>
-                                <td> {$cl_html} </td>
-                                <td><img src='imgs/{$row['image_path']}' alt='{$row['image_path']}'></td>
-                            </tr>
-                            ";
-                    }
-
-                    $res->free_result();
-                    $is_free = $cl_html = $clients_list = NULL;
-            }
+                    echo "<div class=\"notfication-container notif-{$color}\">
+                            <div class=\"notif-icon\">
+                                <img />
+                            </div>
+                            <div class=\"notif-msg\">
+                                <p>{$msg}</p>
+                            </div>
+                        </div>";
+                }
             ?>
-        </table><br>
-        <p><?php 
-                $total_pages  = round( ($_SESSION['CLIENTS_MANGER']->get_total_rows_count() / NUMBER_ELEMENTS_PER_PAGE) + 0.5);
-                $current_page = intval((isset($_GET['page_num']) ?  $_GET['page_num'] : "1"));
-                echo $current_page . "/" . $total_pages;
-            ?></p>
-        <button onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> >Previous</button>
-        <button onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>>After</button>
-        <br>
-        <br>
-        <button type="button" onclick="toggle_display('edit_admin_wraper');">Edit</button>
-        <button type="button" onclick="delete_form_submit(1);">Delete</button>
+            <table id="elements_table" border=1>
+                <tr>
+                    <th></th>
+                    <th>ID</th>
+                    <th>name</th>
+                    <th>Default Price</th>
+                    <th>Is free (Now)</th>
+                    <th>Number of rents</th>
+                    <th>Clients list</th>
+                    <th>Image</th>
+                </tr>
+                <?php 
+                    $start = 0;
 
-        <div id="edit_admin_wraper" hidden>
-            <h4>Edit material:</h4>
-            <form name="auth_form" method="POST" action="#" onsubmit="material_edit_form_submit(this);" enctype="multipart/form-data">
-                <input type="hidden" name="action_type" value="edit" />
-                <input type="hidden" name="id" value="0" />
-                <input type="hidden" name="mat_img_name" value="default.png"/>
-                <label for="name_field">New Material name:</label><br>
-                <input name="mat_name" type="text" class="name_field"> <br>
-                <label for="price_field">New Default price:</label><br>
-                <input name="mat_dprice" type="text" class="price_field"><br>
-                <label for="img_field">New Image:</label><br>
-                <input name="mat_img" type="file" class="img_field" ><br>
-                <input type="submit" value="Edit" class="submit_btn">
-            </form>
+                    if(isset($_GET['page_num']))
+                        $start += ($_GET['page_num'] * NUMBER_ELEMENTS_PER_PAGE) + 1; 
+
+                    $res = $_SESSION['MATERIALS_MANGER']->select_limit($start , $start + NUMBER_ELEMENTS_PER_PAGE);
+                        
+                    if( $res != NULL)
+                    {
+                        $is_free = $cl_html = "";
+                        $clients_list;
+
+                        while($row = $res->fetch_array())
+                        {  
+                            $clients_list = json_decode($row['list_clients']);
+
+                            if($row['is_free'])
+                            {
+                                $checkbox = "";
+                                $is_free = "YES";
+                            }else {
+                                $is_free = "NO";
+                            }
+
+                            if($clients_list != null){
+                                $tmp_arr = array();
+
+                                foreach($clients_list as $id) {
+                                    if(array_key_exists($id,$tmp_arr))
+                                        $tmp_arr[$id] += 1;
+                                    else
+                                        $tmp_arr[$id] = 1;
+                                }
+
+                                foreach($tmp_arr as $id => $num) {
+                                    $client   = $_SESSION['CLIENTS_MANGER']->select_id($id);
+
+                                    $cl_html .= "Client : {$client->first_name} {$client->last_name}, rented {$num} time <br>";
+                                    
+                                    $client = null;
+                                }
+                            }
+
+                            echo "<tr>\n<td><input type=\"checkbox\"/></td>
+                                    <td>{$row['id']}</td>
+                                    <td>{$row['name']}</td>
+                                    <td>{$row['default_price']}</td>
+                                    <td> {$is_free} </td>
+                                    <td>". count($clients_list) ."</td>
+                                    <td> {$cl_html} </td>
+                                    <td><img src='imgs/{$row['image_path']}' alt='{$row['image_path']}'></td>
+                                </tr>
+                                ";
+                        }
+
+                        $res->free_result();
+                        $is_free = $cl_html = $clients_list = NULL;
+                }
+                ?>
+            </table>
+            <p class="page-index"><?php 
+                    $total_pages  = round( ($_SESSION['CLIENTS_MANGER']->get_total_rows_count() / NUMBER_ELEMENTS_PER_PAGE) + 0.5);
+                    $current_page = intval((isset($_GET['page_num']) ?  $_GET['page_num'] : "1"));
+                    echo $current_page . " / " . $total_pages;
+                ?></p>
+            <div class="btns-wraper">
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> >Previous</button>
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>>Next</button>
+            </div>
+
+            <div class="btns-wraper">
+                <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Edit</button>
+                <button type="button" onclick="toggle_display('add_wraper');" class="btn">Add</button>
+                <button type="button" onclick="delete_form_submit(1);"class="btn">Delete</button>
+            </div>
         </div>
-        <hr>
+
+        <div id="add_wraper" class="popup-container" hidden>    
+            <div class="container center" >    
+                <h1>Add new Material:</h1>
+                <form name="material_form" method="POST" action="index.php" onsubmit="verify_material_data(this);" enctype="multipart/form-data">
+                    <input type="hidden" name="action_type" value="add" />
+                    <label for="name_field">Material name:</label><br>
+                    <input name="mat_name" type="text" class="name_field input-field"> <br>
+                    <label for="price_field">Default price:</label><br>
+                    <input name="mat_dprice" type="text" class="price_field input-field" value="0"><br>
+                    <label for="img_field">Image:</label><br>
+                    <input name="mat_img" type="file" class="img_field" ><br>
+                    <div class="btns-wraper">
+                        <input type="submit" value="Add" class="btn">
+                        <button type="button" onclick="toggle_display('add_wraper');" class="btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div id="edit_wraper" class="popup-container" hidden>
+            <div class="container center" hidden>
+                <h4>Edit material:</h4>
+                <form name="auth_form" method="POST" action="#" onsubmit="material_edit_form_submit(this);" enctype="multipart/form-data">
+                    <input type="hidden" name="action_type" value="edit" />
+                    <input type="hidden" name="id" value="0" />
+                    <input type="hidden" name="mat_img_name" value="default.png"/>
+                    <label for="name_field">New Material name:</label><br>
+                    <input name="mat_name" type="text" class="name_field input-field"> <br>
+                    <label for="price_field">New Default price:</label><br>
+                    <input name="mat_dprice" type="text" class="price_field input-field"><br>
+                    <label for="img_field">New Image:</label><br>
+                    <input name="mat_img" type="file" class="img_field" ><br>
+                    <div class="btns-wraper">
+                        <input type="submit" value="Edit" class="btn">
+                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
 
         <form name="delete_form" method="POST" action="index.php">
             <input type="hidden" name="action_type" value="delete" />
             <input type="hidden" name="num_ids" value="delete" />
         </form>
 
-
-        <form method="POST" action="../auth/logout.php">
-            <input type="submit" value="Logout" class="submit_btn">
-        </form>
     </div>
 </body>
 </html>
