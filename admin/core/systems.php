@@ -20,7 +20,6 @@ class Material
 {
     var $id;
     var $name;
-    var $default_price;
     var $num_rents;
     var $is_free;
     var $list_clients;      // Clients IDs
@@ -215,9 +214,6 @@ abstract class AbstractManger
 
         array_push($arr , $new_obj->id);
 
-        echo "<br>{$query} <br>". var_dump($arr);
-
-        
         if(!($ps = $this->db_connection->prepare($query)))
         {
             echo $this->db_connection->error;
@@ -285,7 +281,7 @@ class MaterialsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query              = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `default_price`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?, ?);";
+        $this->add_query              = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?);";
         $this->delete_id_query        = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
         $this->select_id_query        = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
         $this->select_range_query     = "SELECT * FROM ". DATABASE_NAME .".`materials` LIMIT ";
@@ -299,7 +295,6 @@ class MaterialsManger extends AbstractManger
 
         $obj->id            = $res['id'];
         $obj->name          = $res['name'];
-        $obj->default_price = $res['default_price'];
         $obj->is_free       = $res['is_free'];
         $obj->list_clients  = json_decode($res['list_clients']);
         $obj->num_rents     = count($obj->list_clients);
@@ -311,21 +306,12 @@ class MaterialsManger extends AbstractManger
     {
         $json_str = json_encode($obj->list_clients);  // To prevent pass by refrence warning in bin_parm 
 
-        if(!isset($obj->id))        // Means that we are adding
-        {
-        $ps->bind_param("sdiss",
+        $ps->bind_param("siss",
                     $obj->name,
-                    $obj->default_price,
                     $obj->is_free,
                     $json_str,
                     $obj->image_path );
-        }else                        // Means we are editing
-        {
-            $ps->bind_param("sdi",
-                    $obj->name,
-                    $obj->default_price,
-                    $obj->id );
-        }
+  
     }
 }
 
@@ -525,6 +511,31 @@ class AdminsManger extends AbstractManger
         }
 
         return $res;
+    }
+
+    // Retuns number of records found , -1 on failure
+    public function record_count($username)
+    {
+        $auth_query = "SELECT `id` FROM ". DATABASE_NAME .".`admins` WHERE `username` = ?";
+
+        if(!($ps = $this->db_connection->prepare($auth_query)))
+        {
+            echo $this->db_connection->error;
+            return -1;
+        }
+
+        $ps->bind_param("s", $username);
+
+        if(!$ps->execute())   
+        {
+            $ps->close();
+            return -1;
+        }
+
+        $ps->store_result();
+
+        return $ps->num_rows;
+
     }
 }
 

@@ -9,8 +9,11 @@
  */
 require("core/db_connect.php");
 require("core/systems.php");
+require("core/lang.php");
 
 session_start();
+
+lang_init();
 
 refresh_mangers(ADMINS_MANGER_FLAG,$db_connection);
 
@@ -26,55 +29,60 @@ if(!$_SESSION['admin']->is_ceo)
 
 $info_msg = $error_msg = "";
  
-
 if($_SERVER["REQUEST_METHOD"] == "POST")
 {
     switch($_POST['action_type'])
     {
         case "add":
 
-            $admin = new Admin();
-            $admin->username = $_POST['username'];
-            $admin->password = $_POST['password'];
-            $admin->is_ceo   = FALSE;
-            
-            if($_SESSION['ADMINS_MANGER']->add($admin))
-                $info_msg = "Admin added usccesfully!";
-            else
-                $error_msg = "Error while adding admin !";
+            if($_SESSION['ADMINS_MANGER']->record_count($_POST['username']) > 0)
+                $error_msg = LANG_R("ADMIN_ALREADY_EXISTS");
+            else {
+                $admin = new Admin();
+                $admin->username = $_POST['username'];
+                $admin->password = $_POST['password'];
+                $admin->is_ceo   = FALSE;
+                
+                if($_SESSION['ADMINS_MANGER']->add($admin))
+                    $info_msg = LANG_R("ADMIN_ADD_SUCCESS");
+                else
+                    $error_msg = LANG_R("ADMIN_ADD_FAILURE");
+
+                $admin = null;
+            }
 
             break;
         case "edit":
-    
-            $pass = $_POST['password'];
 
-            if(!password_get_info($pass)['algo'])
-            {
-                echo 'grgrgr <br>';
-                $pass = password_hash($pass , PASSWORD_DEFAULT);
+            if($_SESSION['ADMINS_MANGER']->record_count($_POST['username']) > 0)    // Without counting existing one if exists
+                $error_msg = LANG_R("ADMIN_ALREADY_EXISTS");
+            else {
+                $pass = $_POST['password'];
+       
+                if(!password_get_info($pass)['algo'])
+                    $pass = password_hash($pass , PASSWORD_DEFAULT);
+
+                $tmp_obj = new Admin();
+                $tmp_obj->id       = $_POST['id'];
+                $tmp_obj->username = $_POST['username'];
+                $tmp_obj->password = $pass;
+
+                if(!$_SESSION['ADMINS_MANGER']->update($tmp_obj))
+                    $error_msg = LANG_R("ADMIN_EDIT_FAILURE");
+                else
+                    $info_msg = LANG_R("ADMIN_EDIT_SUCCESS");
+
+                $tmp_obj = null;
             }
 
-            echo $pass;
-
-            $tmp_obj = new Admin();
-            $tmp_obj->id       = $_POST['id'];
-            $tmp_obj->username = $_POST['username'];
-            $tmp_obj->password = $pass;
-
-            if(!$_SESSION['ADMINS_MANGER']->update($tmp_obj))
-                $error_msg = "Error while editing admin!";
-            else
-                $info_msg = "Admin edited succesfully!";
-
-            $tmp_obj = null;
-
+            $pass = null;
             break;
         case "delete":
 
             if(!$_SESSION['ADMINS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
-                $error_msg = "Error while deleting admin!";
+                $error_msg = LANG_R("ADMIN_DELETE_FAILURE");
             else
-                $info_msg = "Admin deleted sccesfully!";
+                $info_msg = LANG_R("ADMIN_DELETE_SUCCESS");
             
             break;
     }
@@ -87,7 +95,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ADMIN INDEX</title>
+    <title><?php LANG("ADMIN_PAGE_TITLE"); ?></title>
     <script src="../js/scripts.js"></script>
 </head>
 <body>
@@ -95,7 +103,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
     <div class="content-wraper">
         <div class="container">
-            <h1>Admins table</h1>
+            <h1><?php LANG("ADMIN_PAGE_TABLE_TITLE"); ?></h1>
             <?php 
                 $color = $msg = "";
 
@@ -124,8 +132,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 <tr>
                     <th></th>
                     <th>ID</th>
-                    <th>Username</th>
-                    <th>Is CEO ?</th>
+                    <th><?php LANG("ADMIN_PAGE_TABLE_USERNAME"); ?></th>
+                    <th><?php LANG("ADMIN_PAGE_TABLE_CEO"); ?></th>
                 </tr>
                 <?php 
                     $res = $_SESSION['ADMINS_MANGER']->select_all();
@@ -157,24 +165,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             </table>
             
             <div class="btns-wraper">
-                <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Edit</button>
-                <button type="button" onclick="toggle_display('add_wraper');" class="btn">Add</button>
-                <button type="button" onclick="delete_form_submit();" class="btn">Delete</button>
+                <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_EDIT"); ?></button>
+                <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_ADD"); ?></button>
+                <button type="button" onclick="delete_form_submit();" class="btn"><?php LANG("BUTTON_DELETE"); ?></button>
             </div>
         </div>
-
+              
         <div id="add_wraper" class="popup-container" hidden>        
             <div class="container center" >
-                <h1>Add new admin</h1>
+                <h1><?php LANG("ADMIN_PAGE_NEW_ADMIN"); ?></h1>
                 <form name="auth_form" method="POST" action="index.php" onsubmit="verify_data(this);">
                 <input type="hidden" name="action_type" value="add" />
-                    <label for="username_field">Username:</label><br>
+                    <label for="username_field"><?php LANG("ADMIN_PAGE_TABLE_USERNAME"); ?>:</label><br>
                     <input name="username" type="text" class="username_field input-field"> <br>
-                    <label for="password_field">Password:</label><br>
+                    <label for="password_field"><?php LANG("ADMIN_PAGE_PASSWORD"); ?>:</label><br>
                     <input name="password" type="password" class="password_field input-field"><br>
                     <div class="btns-wraper">
-                        <input type="submit" value="Add" class="btn">
-                        <button type="button" onclick="toggle_display('add_wraper');" class="btn">Cancel</button>
+                        <input type="submit" value=<?php LANG_1("BUTTON_ADD"); ?> class="btn">
+                        <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
             </div>
@@ -182,17 +190,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
         
         <div id="edit_wraper" class="popup-container" hidden>    
             <div class="container center" hidden>
-                <h1>Edit account</h4>
-                <form name="auth_form" method="POST" action="#" onsubmit="admin_edit_form_submit(this);">
+                <h1><?php LANG("ADMIN_PAGE_EDIT"); ?></h4>
+                <form name="auth_form" method="POST" action="index.php" onsubmit="admin_edit_form_submit(this);">
                     <input type="hidden" name="action_type" value="edit" />
                     <input type="hidden" name="id" value="0" />
-                    <label for="username_field">New Username:</label><br>
+                    <label for="username_field"><?php LANG("ADMIN_PAGE_NEW_USERNAME"); ?></label><br>
                     <input name="username" type="text" class="username_field input-field"> <br>
-                    <label for="password_field">New Password:</label><br>
+                    <label for="password_field"><?php LANG("ADMIN_PAGE_NEW_PASSWORD"); ?></label><br>
                     <input name="password" type="password" class="password_field input-field"><br>
                     <div class="btns-wraper">
-                        <input type="submit" value="Edit" class="btn">
-                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Cancel</button>
+                        <input type="submit" value=<?php LANG_1("BUTTON_EDIT"); ?> class="btn">
+                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
             </div>

@@ -8,6 +8,7 @@
  */
 require("../core/db_connect.php");
 require("../core/systems.php");
+require("../core/lang.php");
 
 session_start();
 
@@ -34,9 +35,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             $client->list_rents = array();
 
             if($_SESSION['CLIENTS_MANGER']->add($client))
-                $info_msg = "Client added usccesfully!";
+                $info_msg = LANG_R("CLIENT_ADD_SUCCESS");
             else
-                $error_msg = "Error while adding new Client !";
+                $error_msg = LANG_R("CLIENT_ADD_FAILURE");
 
             $client = null;
 
@@ -53,9 +54,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             var_dump($new_client);
 
             if($_SESSION['CLIENTS_MANGER']->update($new_client))
-                $info_msg = "Client edited usccesfully!";
+                $info_msg = LANG_R("CLIENT_EDIT_SUCCESS");
             else
-                $error_msg = "Error while editing Client !";
+                $error_msg = LANG_R("CLIENT_EDIT_FAILURE");
 
             $new_client = NULL;
            
@@ -63,9 +64,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
         case "delete":
 
             if(!$_SESSION['CLIENTS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
-                $error_msg = "Error while deleting clients!";
+                $error_msg = LANG_R("CLIENT_DELETE_FAILURE");
             else
-                $info_msg = "Client deleted succesfully!";
+                $info_msg = LANG_R("CLIENT_DELETE_SUCCESS");
          
             break;
     }
@@ -78,7 +79,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CLIENTS CONTROL PANEL</title>
+    <title><?php LANG("CLIENT_PAGE_TITLE"); ?></title>
     <script src="../../js/scripts.js"></script>
 </head>
 <body>
@@ -86,7 +87,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
     <div class="content-wraper">
         <div class="container">
-            <h1>Clients table:</h1>
+            <h1><?php LANG("CLIENT_PAGE_TABLE_TITLE"); ?>:</h1>
             <?php 
                     $color = $msg = "";
 
@@ -115,11 +116,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 <tr>
                     <th></th>
                     <th>ID</th>
-                    <th>First name</th>
-                    <th>Last name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Number of Rents</th>
+                    <th><?php LANG("CLIENT_PAGE_TABLE_FIRSTNAME"); ?></th>
+                    <th><?php LANG("CLIENT_PAGE_TABLE_LASTNAME"); ?></th>
+                    <th><?php LANG("CLIENT_PAGE_TABLE_EMAIL"); ?></th>
+                    <th><?php LANG("CLIENT_PAGE_TABLE_PHONE"); ?></th>
+                    <th><?php LANG("MATERIAL_PAGE_TABLE_RENTS_NUM"); ?></th>
                 </tr>
                 <?php 
                     $start = 0;
@@ -159,13 +160,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     echo $current_page . " / " . $total_pages;
                 ?></p>
             <div class="btns-wraper">
-                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> >Previous</button>
-                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>>After</button>
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> ><?php LANG("BUTTON_PREV"); ?></button>
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>><?php LANG("BUTTON_NEXT"); ?></button>
             </div>
             <div class="btns-wraper">
-                <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Edit</button>
-                <button type="button" onclick="toggle_display('add_wraper');" class="btn">Add</button>
-                <button type="button" onclick="delete_form_submit();" class="btn">Delete</button>
+                <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_EDIT"); ?></button>
+                <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_ADD"); ?></button>
+                <button type="button" onclick="delete_form_submit();" class="btn"><?php LANG("BUTTON_DELETE"); ?></button>
             </div>
             </div>
         </div>
@@ -173,20 +174,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
         
         <div id="add_wraper" class="popup-container" hidden>    
             <div class="container center" >    
-                <h1>Add new Client:</h1>
+                <h1><?php LANG("CLIENT_PAGE_NEW_CLIENT"); ?></h1>
                 <form name="material_form" method="POST" action="index.php" onsubmit="verify_client_data(this);" enctype="multipart/form-data">
                     <input type="hidden" name="action_type" value="add" />
-                    <label for="fname_field">First name:</label><br>
+                    <label for="fname_field"><?php LANG("CLIENT_PAGE_TABLE_FIRSTNAME"); ?>:</label><br>
                     <input name="first_name" type="text" class="fname_field input-field"> <br>
-                    <label for="lname_field">Last name:</label><br>
+                    <label for="lname_field"><?php LANG("CLIENT_PAGE_TABLE_LASTNAME"); ?>:</label><br>
                     <input name="last_name" type="text" class="lname_field input-field" ><br>
-                    <label for="email_field">Email:</label><br>
+                    <label for="email_field"><?php LANG("CLIENT_PAGE_TABLE_EMAIL"); ?>:</label><br>
                     <input name="email" type="email" class="email_field input-field" ><br>
-                    <label for="phone_field">Phone number:</label><br>
+                    <label for="phone_field"><?php LANG("CLIENT_PAGE_TABLE_PHONE"); ?>:</label><br>
                     <input name="phone" type="number" class="phone_field input-field" ><br>
                     <div class="btns-wraper">
                         <input type="submit" value="Add" class="btn">
-                        <button type="button" onclick="toggle_display('add_wraper');" class="btn">Cancel</button>
+                        <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
             </div>
@@ -194,21 +195,21 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
         <div id="edit_wraper" class="popup-container" hidden>    
             <div class="container center" >    
-                <h4>Edit clients:</h4>
+                <h1><?php LANG("CLIENT_PAGE_EDIT_CLIENT"); ?></h1>
                 <form name="auth_form" method="POST" action="#" onsubmit="clients_edit_form_submit(this);" enctype="multipart/form-data">
                     <input type="hidden" name="action_type" value="edit" />
                     <input type="hidden" name="id" value="0" />
-                    <label for="fname_field">First name:</label><br>
+                    <label for="fname_field"><?php LANG("CLIENT_PAGE_TABLE_FIRSTNAME"); ?>:</label><br>
                     <input name="first_name" type="text" class="fname_field input-field"> <br>
-                    <label for="lname_field">Last name:</label><br>
+                    <label for="lname_field"><?php LANG("CLIENT_PAGE_TABLE_LASTNAME"); ?>:</label><br>
                     <input name="last_name" type="text" class="lname_field input-field" ><br>
-                    <label for="email_field">Email:</label><br>
+                    <label for="email_field"><?php LANG("CLIENT_PAGE_TABLE_EMAIL"); ?>:</label><br>
                     <input name="email" type="email" class="email_field input-field" ><br>
-                    <label for="phone_field">Phone number:</label><br>
+                    <label for="phone_field"><?php LANG("CLIENT_PAGE_TABLE_PHONE"); ?>:</label><br>
                     <input name="phone" type="number" class="phone_field input-field" ><br>
                     <div class="btns-wraper">
                         <input type="submit" value="Edit" class="btn">
-                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Cancel</button>
+                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
             </div>

@@ -54,7 +54,6 @@ $queries = array(
        "CREATE TABLE ". DATABASE_NAME .".`materials` (
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `name` varchar(255) NOT NULL,
-        `default_price` double unsigned DEFAULT 0,
         `is_free` tinyint(1) NOT NULL DEFAULT 0,
         `list_clients` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`list_clients`)),
         `image_path` varchar(255) NOT NULL,

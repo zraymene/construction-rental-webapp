@@ -1,0 +1,102 @@
+# THis is a comment
+# Author : ZEROUAL AYMENE <aymenezeroual@gmail.com>
+#
+# Don't edit The Key values unless you know what you doing !
+#
+# FORMAT : KEY = VALUE 
+# Use Language name as chunk title : ex(EN)
+# At the end of a chunk add : LANG_END
+
+
+EN
+BUTTON_EDIT = Edit
+BUTTON_ADD = Add
+BUTTON_DELETE = Delete
+BUTTON_CANCEL = Cancel
+BUTTON_PREV = Previous
+BUTTON_NEXT = Next
+BUTTON_CHANGE = Change
+
+MENU_TITLE = Control Panel
+MENU_RENT = Rents
+MENU_CLIENTS = Clients
+MENU_MATERIALS = Materials
+
+ADMIN_ALREADY_EXISTS = Admin with the same username already exists !
+ADMIN_ADD_SUCCESS = Admin added successfully !
+ADMIN_ADD_FAILURE = Error while adding new admin !
+ADMIN_EDIT_SUCCESS = Admin edited successfully !
+ADMIN_EDIT_FAILURE = Error while editing admin !
+ADMIN_DELETE_SUCCESS = Admin deleted successfully !
+ADMIN_DELETE_FAILURE = Error while deleting admin !
+ADMIN_PAGE_TITLE = Admins | Control Panel
+ADMIN_PAGE_TABLE_TITLE = Admins Table
+ADMIN_PAGE_TABLE_USERNAME = Username
+ADMIN_PAGE_TABLE_CEO = Is The CEO
+ADMIN_PAGE_NEW_ADMIN = Add new admin
+ADMIN_PAGE_EDIT = Edit account
+ADMIN_PAGE_PASSWORD = Password
+ADMIN_PAGE_NEW_USERNAME = New Username 
+ADMIN_PAGE_NEW_PASSWORD = New Password 
+
+MATERIAL_ADD_SUCCESS = Material added successfully !
+MATERIAL_ADD_FAILURE = Error while adding new material !
+MATERIAL_EDIT_SUCCESS = Material edited successfully !
+MATERIAL_EDIT_FAILURE = Error while editing material !
+MATERIAL_DELETE_SUCCESS = Material deleted successfully !
+MATERIAL_DELETE_FAILURE = Error while deleting material !
+MATERIAL_IMG_NOT = File is not an image
+MATERIAL_IMG_LARGE = Sorry, your image is too large
+MATERIAL_IMG_TYPE = Only JPG, JPEG, PNG files are allowed.
+MATERIAL_IMG_UPLOAD_ERR = There was an error uploading your file.
+MATERIAL_IMG_DELETE_ERR = Error while deleting images !
+MATERIAL_PAGE_TITLE = Materials | Control Panel
+MATERIAL_PAGE_TABLE_TITLE = Materials Table
+MATERIAL_PAGE_TABLE_NAME = Material Name
+MATERIAL_PAGE_TABLE_FREE = Is Free (Now)
+MATERIAL_PAGE_TABLE_RENTS_NUM = Number of rents
+MATERIAL_PAGE_TABLE_CLIENTS_LIST = Clients list
+MATERIAL_PAGE_TABLE_IMAGE = Image
+MATERIAL_PAGE_TABLE_IMAGE = Rented
+MATERIAL_PAGE_NEW_MATERIAL = Add new material
+MATERIAL_PAGE_PASSWORD = Password
+MATERIAL_PAGE_NEW_NAME = New Material name :
+MATERIAL_PAGE_NEW_IMAGE = New Material image :
+
+CLIENT_ADD_SUCCESS = Client added successfully !
+CLIENT_ADD_FAILURE = Error while adding new client !
+CLIENT_EDIT_SUCCESS = Client edited successfully !
+CLIENT_EDIT_FAILURE = Error while editing Client !
+CLIENT_DELETE_SUCCESS = Client deleted successfully !
+CLIENT_DELETE_FAILURE = Error while deleting Client !
+CLIENT_PAGE_TITLE = Clients | Control Panel
+CLIENT_PAGE_TABLE_TITLE = Clients Table
+CLIENT_PAGE_TABLE_FIRSTNAME = First name
+CLIENT_PAGE_TABLE_LASTNAME = Last name
+CLIENT_PAGE_TABLE_EMAIL = Email
+CLIENT_PAGE_TABLE_PHONE = Phone
+CLIENT_PAGE_NEW_CLIENT = Add new client
+CLIENT_PAGE_EDIT_CLIENT = Edit client
+
+RENTS_ADD_SUCCESS = Rent added successfully !
+RENTS_ADD_FAILURE = Error while adding new rent !
+RENTS_EDIT_SUCCESS = Rent edited successfully !
+RENTS_EDIT_FAILURE = Error while editing Rent !
+RENTS_DELETE_SUCCESS = Rent deleted successfully !
+RENTS_DELETE_FAILURE = Error while deleting Rent !
+RENTS_PAGE_TITLE = Rents | Control Panel
+RENTS_PAGE_TABLE_TITLE = Rents Table
+CLIENT_PAGE_TABLE_FIRSTNAME = First name
+CLIENT_PAGE_TABLE_LASTNAME = Last name
+CLIENT_PAGE_TABLE_CLIENT = Client
+CLIENT_PAGE_TABLE_PRICE = Price
+CLIENT_PAGE_TABLE_DATE_CREATION = Creation date
+CLIENT_PAGE_TABLE_DEADLINE = Deadline
+CLIENT_PAGE_TABLE_AUTHOR = Author
+
+LANG_END
+
+FR 
+
+
+LANG_END

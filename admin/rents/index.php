@@ -257,9 +257,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 <form name="material_form" method="POST" action="index.php" onsubmit="verify_rent_data(this);" enctype="multipart/form-data">
                     <input type="hidden" name="action_type" value="add" />
                     <label for="price_field">Price :</label><br>
-                    <input name="price" type="number" class="price_field input-field" min="1" step="any"><br>
+                    <input name="price" type="number" class="price_field input-field" value="1" min="1" step="any"><br>
                     <label for="client_field">Client :</label><br>
-                    <select id="clients" name="client_id" class="client_field input-field">
+                    <select id="clients" name="client_id" class="client_field input-field select-field">
                     <option value="0">Choose a Client</option>
                         <?php
                             $res = $_SESSION['CLIENTS_MANGER']->select_limit(0 , 100);
@@ -274,7 +274,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                         ?>
                     </select><br>
                     <label for="material_field">Material :</label><br>
-                    <select id="materials" name="material_id" class="material_field input-field">
+                    <select id="materials" name="material_id" class="material_field input-field select-field">
                         <option value="0">Choose a Material</option>
                         <?php
                             $res = $_SESSION['MATERIALS_MANGER']->select_limit(0 , 100);

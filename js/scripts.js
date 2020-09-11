@@ -2,7 +2,15 @@
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
 
- var global_var;
+var MSG_UP_EMPTY = "Username/Password is empty !";
+var MSG_CHECKBOX_EMPTY = "You must pick a row !";
+var MSG_CHECKBOX_MULTI = "You must pick only one row !";
+var MSG_FIELDS_EMPTY = "You must fill those fields !";
+var MSG_CONFIRM_DELETION = "Click Yest to confirm the deletion :"
+
+var MSG_RENTINFO_EMPTY = "Rent info is undefined !";
+var MSG_CLIENTINFO_EMPTY = "Client info is undefined !";
+var MSG_MATINFO_EMPTY = "Material name is undefined !";
 
 function check_empty(str)
 {
@@ -16,7 +24,7 @@ function verify_data(wanted_form)
 {
 
     if ( check_empty(wanted_form["username"].value) || check_empty(wanted_form["password"].value)) {
-        alert("Username/Password is empty !");
+        alert(MSG_UP_EMPTY);
         event.preventDefault();
         return false;
     }
@@ -41,7 +49,7 @@ function material_edit_form_submit(edit_form)
             if(counter == 0)        // Pick the first one and wish the user didn't check more then 1 
             {
                 obj.id           = checkboxes[i].parentNode.parentNode.cells[1].innerHTML;
-                obj.mat_img_name = checkboxes[i].parentNode.parentNode.cells[7].childNodes[0].alt;
+                obj.mat_img_name = checkboxes[i].parentNode.parentNode.cells[6].childNodes[0].alt;
 
             }
             counter++;
@@ -50,24 +58,23 @@ function material_edit_form_submit(edit_form)
 
     if(counter == 0)
     {
-        alert("Pick a row ... Faggot !");
+        alert(MSG_CHECKBOX_EMPTY);
         event.preventDefault();
         return;
     }
 
     if(counter > 1)                  // Great , he picked more then 1 
     {
-        alert("Pick only one ... Faggot !");
+        alert(MSG_CHECKBOX_MULTI);
         event.preventDefault();
         return;
     }
 
     var mat_name   = edit_form['mat_name'].value;
-    var mat_dprice = edit_form['mat_dprice'].value;
 
-    if ( check_empty(mat_name) && check_empty(mat_dprice) && edit_form['mat_img'].files.length == 0) 
+    if ( check_empty(mat_name) && edit_form['mat_img'].files.length == 0) 
     {
-        alert("Those fields won't fill on thier own !");
+        alert(MSG_FIELDS_EMPTY);
         event.preventDefault();
         return;
     }
@@ -99,14 +106,14 @@ function admin_edit_form_submit(edit_form)
 
     if(counter == 0)
     {
-        alert("Pick a row ... Faggot !");
+        alert(MSG_CHECKBOX_EMPTY);
         event.preventDefault();
         return;
     }
 
     if(counter > 1)     // Great , he picked more then 1 
     {
-        alert("Pick only one ... Faggot !");
+        alert(MSG_CHECKBOX_MULTI);
         event.preventDefault();
         return;
     }
@@ -116,7 +123,7 @@ function admin_edit_form_submit(edit_form)
 
     if ( check_empty(user) && check_empty(pass)) 
     {
-        alert("Those fields won't fill on thier own !");
+        alert(MSG_FIELDS_EMPTY);
         event.preventDefault();
         return;
     }
@@ -145,14 +152,14 @@ function rents_edit_form_submit(edit_form)
 
     if(counter == 0)
     {
-        alert("Pick a row ... Faggot !");
+        alert(MSG_CHECKBOX_EMPTY);
         event.preventDefault();
         return;
     }
 
     if(counter > 1)     // Great , he picked more then 1 
     {
-        alert("Pick only one ... Faggot !");
+        alert(MSG_CHECKBOX_MULTI);
         event.preventDefault();
         return;
     }
@@ -163,7 +170,7 @@ function rents_edit_form_submit(edit_form)
 
     if ( check_empty(price) && check_empty(deadline)) 
     {
-        alert("Those fields won't fill on thier own !");
+        alert(MSG_FIELDS_EMPTY);
         event.preventDefault();
         return;
     }
@@ -193,14 +200,14 @@ function clients_edit_form_submit(edit_form)
 
     if(counter == 0)
     {
-        alert("Pick a row ... Faggot !");
+        alert(MSG_CHECKBOX_EMPTY);
         event.preventDefault();
         return;
     }
 
     if(counter > 1)     // Great , he picked more then 1 
     {
-        alert("Pick only one ... Faggot !");
+        alert(MSG_CHECKBOX_MULTI);
         event.preventDefault();
         return;
     }
@@ -212,7 +219,7 @@ function clients_edit_form_submit(edit_form)
 
     if ( check_empty(first_name) && check_empty(last_name) && check_empty(email) && check_empty(phone)) 
     {
-        alert("Those fields won't fill on thier own !");
+        alert(MSG_FIELDS_EMPTY);
         event.preventDefault();
         return;
     }
@@ -247,7 +254,7 @@ function delete_form_submit(post_type = 0)
 
                     new_img_element.type = "hidden";
                     new_img_element.name = "name_imgs[]";
-                    new_img_element.value = checkboxes[i].parentNode.parentNode.cells[7].childNodes[0].alt;
+                    new_img_element.value = checkboxes[i].parentNode.parentNode.cells[6].childNodes[0].alt;
                     
                     delete_form.appendChild(new_img_element);
 
@@ -274,10 +281,16 @@ function delete_form_submit(post_type = 0)
             num_ids++;
         }
     }
+    
+    if(num_ids == 0)
+    {
+        alert(MSG_CHECKBOX_EMPTY);
+        return;
+    }
 
     delete_form['num_ids'].value  = num_ids;
 
-    if(confirm("Click yes to confirm the deletion :"))
+    if(confirm(MSG_CONFIRM_DELETION))
         document.forms['delete_form'].submit();
 }
 
@@ -296,7 +309,7 @@ function verify_rent_data(add_form)
     if(check_empty(add_form["price"].value) || add_form["client_id"].value == "0" 
        || add_form["material_id"].value == "0" || check_empty(add_form["deadline"].value))
     {
-        alert("Rent info is undefined !");
+        alert(MSG_RENTINFO_EMPTY);
         event.preventDefault();
     }
 
@@ -309,7 +322,7 @@ function verify_client_data(add_form)
        || check_empty(add_form["email"].value) || check_empty(add_form["phone"].value)
     ))
     {
-        alert("Client info is undefined !");
+        alert(MSG_CLIENTINFO_EMPTY);
         event.preventDefault();
     }
 }
@@ -318,7 +331,7 @@ function verify_material_data(add_form)
 {
     if(check_empty(add_form["mat_name"].value))
     {
-        alert("Material name is undefined !");
+        alert(MSG_MATINFO_EMPTY);
         event.preventDefault();
     }
 }

@@ -8,6 +8,7 @@
  */
 require("../core/db_connect.php");
 require("../core/systems.php");
+require("../core/lang.php");
 
 session_start();
 
@@ -35,7 +36,7 @@ function check_img($file , $is_edit = false , $old_img_name = "")
         if(strcmp($old_img_name , IMG_MAT_DEFAULT) != 0)
         {
             if(!unlink("imgs/{$old_img_name}"))
-                $error_msg =  "Error while deleting images!";
+                $error_msg = LANG_R("MATERIAL_IMG_DELETE_ERR");
         }
 
         $old_img_name = explode("."  ,$old_img_name );
@@ -46,22 +47,22 @@ function check_img($file , $is_edit = false , $old_img_name = "")
     $output_file = "imgs/" . $img_name;
 
     if(!getimagesize($file["tmp_name"])) {
-        $error_msg = "File is not an image.";
+        $error_msg = LANG_R("MATERIAL_IMG_NOT");
         return IMG_MAT_DEFAULT;
     }
 
     if ($file["size"] > IMG_MAX_SIZE) {
-        $error_msg = "Sorry, your file is too large.";
+        $error_msg = LANG_R("MATERIAL_IMG_LARGE");
         return IMG_MAT_DEFAULT;
     }
 
     if($img_ext != "jpg" && $img_ext != "png" && $img_ext != "jpeg"){
-        $error_msg = "Only JPG, JPEG, PNG files are allowed.";
+        $error_msg =  LANG_R("MATERIAL_IMG_TYPE");
         return IMG_MAT_DEFAULT;
     }
 
     if (!move_uploaded_file($file["tmp_name"], $output_file)) {
-        $error_msg = "There was an error uploading your file.";
+        $error_msg = LANG_R("MATERIAL_IMG_UPLOAD_ERR");
         return IMG_MAT_DEFAULT;
     }
     
@@ -77,15 +78,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             
             $mat = new Material();
             $mat->name          = $_POST['mat_name'];
-            $mat->default_price = $_POST['mat_dprice'];
             $mat->is_free       = TRUE;
             $mat->list_clients  = array();
             $mat->image_path    = $img_name;
             
             if($_SESSION['MATERIALS_MANGER']->add($mat))
-                $info_msg = "Material added usccesfully!";
+                $info_msg = LANG_R("MATERIAL_ADD_SUCCESS");
             else
-                $error_msg = "Error while adding new Material !";
+                $error_msg = LANG_R("MATERIAL_ADD_FAILURE");
 
             $mat = $img_ext = $img_name = $output_file = NULL;
 
@@ -95,7 +95,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             $new_mat = new Material();
             $new_mat->id            = $_POST['id'];
             $new_mat->name          = $_POST['mat_name'];
-            $new_mat->default_price = $_POST['mat_dprice'];
             
             if($_FILES['mat_img']['size'] != 0) 
             {
@@ -109,9 +108,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             }
 
             if($_SESSION['MATERIALS_MANGER']->update($new_mat))
-                $info_msg = "Material edited usccesfully!";
+                $info_msg = LANG_R("MATERIAL_EDIT_SUCCESS");
             else
-                $error_msg = "Error while edited new Material !";
+                $error_msg = LANG_R("MATERIAL_EDIT_FAILURE");
 
             $new_mat = NULL;
 
@@ -123,14 +122,14 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 if(strcmp($img , IMG_MAT_DEFAULT))
                 {
                    if(!unlink("imgs/".$img))
-                       echo "Error while deleting images!";
+                       echo LANG_R("MATERIAL_IMG_DELETE_ERR");
                 }
             }
 
             if(!$_SESSION['MATERIALS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
-                $error_msg = "Error while deleting materials!";
+                $error_msg = LANG_R("MATERIAL_DELETE_FAILURE");
             else
-                $info_msg = "Materials deleted succesfully!";
+                $info_msg = LANG_R("MATERIAL_DELETE_SUCCESS");
             break;
     }
 }
@@ -186,7 +185,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     <th></th>
                     <th>ID</th>
                     <th>name</th>
-                    <th>Default Price</th>
                     <th>Is free (Now)</th>
                     <th>Number of rents</th>
                     <th>Clients list</th>
@@ -239,7 +237,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                             echo "<tr>\n<td><input type=\"checkbox\"/></td>
                                     <td>{$row['id']}</td>
                                     <td>{$row['name']}</td>
-                                    <td>{$row['default_price']}</td>
                                     <td> {$is_free} </td>
                                     <td>". count($clients_list) ."</td>
                                     <td> {$cl_html} </td>
@@ -277,8 +274,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     <input type="hidden" name="action_type" value="add" />
                     <label for="name_field">Material name:</label><br>
                     <input name="mat_name" type="text" class="name_field input-field"> <br>
-                    <label for="price_field">Default price:</label><br>
-                    <input name="mat_dprice" type="text" class="price_field input-field" value="0"><br>
                     <label for="img_field">Image:</label><br>
                     <input name="mat_img" type="file" class="img_field" ><br>
                     <div class="btns-wraper">
@@ -298,8 +293,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     <input type="hidden" name="mat_img_name" value="default.png"/>
                     <label for="name_field">New Material name:</label><br>
                     <input name="mat_name" type="text" class="name_field input-field"> <br>
-                    <label for="price_field">New Default price:</label><br>
-                    <input name="mat_dprice" type="text" class="price_field input-field"><br>
                     <label for="img_field">New Image:</label><br>
                     <input name="mat_img" type="file" class="img_field" ><br>
                     <div class="btns-wraper">
