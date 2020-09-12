@@ -13,7 +13,7 @@ if(file_exists($install_file))
 {
         echo 'Found fine : installing !';
 
-//        header( "Location:".$install_file );
+        header( "Location:".$install_file );
 
 }
 
