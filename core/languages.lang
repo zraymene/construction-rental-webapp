@@ -1,0 +1,240 @@
+# THis is a comment
+# Author : ZEROUAL AYMENE <aymenezeroual@gmail.com>
+#
+# Don't edit The Key values unless you know what you doing !
+#
+# FORMAT : KEY = VALUE 
+# Use Language name as chunk title : ex(EN)
+# At the end of a chunk add : LANG_END
+
+
+EN
+BUTTON_EDIT = Edit
+BUTTON_ADD = Add
+BUTTON_DELETE = Delete
+BUTTON_CANCEL = Cancel
+BUTTON_PREV = Previous
+BUTTON_NEXT = Next
+BUTTON_CHANGE = Change
+BUTTON_UNBAN = Unban
+
+MENU_TITLE = Control Panel
+MENU_RENT = Rents
+MENU_CLIENTS = Clients
+MENU_MATERIALS = Materials
+MENU_ADMINS = Admins
+
+REPEATITION = time
+
+YES = Yes
+NO = No
+
+ADMIN_ALREADY_EXISTS = Admin with the same username already exists !
+ADMIN_ADD_SUCCESS = Admin added successfully !
+ADMIN_ADD_FAILURE = Error while adding new admin !
+ADMIN_EDIT_SUCCESS = Admin edited successfully !
+ADMIN_EDIT_FAILURE = Error while editing admin !
+ADMIN_DELETE_SUCCESS = Admin deleted successfully !
+ADMIN_DELETE_FAILURE = Error while deleting admin !
+ADMIN_PAGE_TITLE = Admins | Control Panel
+ADMIN_PAGE_TABLE_TITLE = Admins Table
+ADMIN_PAGE_TABLE_USERNAME = Username
+ADMIN_PAGE_TABLE_CEO = Is The CEO
+ADMIN_PAGE_NEW_ADMIN = Add new admin
+ADMIN_PAGE_EDIT = Edit account
+ADMIN_PAGE_PASSWORD = Password
+ADMIN_PAGE_NEW_USERNAME = New Username 
+ADMIN_PAGE_NEW_PASSWORD = New Password 
+
+MATERIAL = Material
+MATERIAL_ADD_SUCCESS = Material added successfully !
+MATERIAL_ADD_FAILURE = Error while adding new material !
+MATERIAL_EDIT_SUCCESS = Material edited successfully !
+MATERIAL_EDIT_FAILURE = Error while editing material !
+MATERIAL_DELETE_SUCCESS = Material deleted successfully !
+MATERIAL_DELETE_FAILURE = Error while deleting material !
+MATERIAL_IMG_NOT = File is not an image
+MATERIAL_IMG_LARGE = Sorry, your image is too large
+MATERIAL_IMG_TYPE = Only JPG, JPEG, PNG files are allowed.
+MATERIAL_IMG_UPLOAD_ERR = There was an error uploading your file.
+MATERIAL_IMG_DELETE_ERR = Error while deleting images !
+MATERIAL_PAGE_TITLE = Materials | Control Panel
+MATERIAL_PAGE_TABLE_TITLE = Materials Table
+MATERIAL_PAGE_TABLE_NAME = Material Name
+MATERIAL_PAGE_TABLE_FREE = Is Free (Now)
+MATERIAL_PAGE_TABLE_RENTS_NUM = Number of rents
+MATERIAL_PAGE_TABLE_CLIENTS_LIST = Clients list
+MATERIAL_PAGE_TABLE_IMAGE = Image
+MATERIAL_PAGE_TABLE_RENTED = Rented
+MATERIAL_PAGE_NEW_MATERIAL = Add new material
+MATERIAL_PAGE_EDIT_MATERIAL = Edit material
+MATERIAL_PAGE_PASSWORD = Password
+MATERIAL_PAGE_NEW_NAME = New Material name 
+MATERIAL_PAGE_NEW_IMAGE = New Material image 
+
+CLIENT_ADD_SUCCESS = Client added successfully !
+CLIENT_ADD_FAILURE = Error while adding new client !
+CLIENT_EDIT_SUCCESS = Client edited successfully !
+CLIENT_EDIT_FAILURE = Error while editing Client !
+CLIENT_DELETE_SUCCESS = Client deleted successfully !
+CLIENT_DELETE_FAILURE = Error while deleting Client !
+CLIENT_UNBAN_SUCCESS = Client unbanned successfully !
+CLIENT_UNBAN_FAILURE = Error while unbanning Client !
+CLIENT_PAGE_TITLE = Clients | Control Panel
+CLIENT_PAGE_TABLE_TITLE = Clients Table
+CLIENT_PAGE_TABLE_FIRSTNAME = First name
+CLIENT_PAGE_TABLE_LASTNAME = Last name
+CLIENT_PAGE_TABLE_EMAIL = Email
+CLIENT_PAGE_TABLE_PHONE = Phone
+CLIENT_PAGE_NEW_CLIENT = Add new client
+CLIENT_PAGE_EDIT_CLIENT = Edit client
+
+RENTS_ADD_SUCCESS = Rent added successfully !
+RENTS_ADD_FAILURE = Error while adding new rent !
+RENTS_EDIT_SUCCESS = Rent edited successfully !
+RENTS_EDIT_FAILURE = Error while editing Rent !
+RENTS_DELETE_SUCCESS = Rent deleted successfully !
+RENTS_DELETE_FAILURE = Error while deleting Rent !
+RENTS_PAGE_TITLE = Rents | Control Panel
+RENTS_PAGE_TABLE_TITLE = Rents Table
+RENTS_PAGE_TABLE_FIRSTNAME = First name
+RENTS_PAGE_TABLE_LASTNAME = Last name
+RENTS_PAGE_TABLE_CLIENT = Client
+RENTS_PAGE_TABLE_PRICE = Price
+RENTS_PAGE_TABLE_DATE_CREATION = Creation date
+RENTS_PAGE_TABLE_DEADLINE = Deadline
+RENTS_PAGE_TABLE_AUTHOR = Author
+RENTS_PAGE_EDIT_RENT = Edit rent
+RENTS_PAGE_ADD_RENT = Add new rent
+RENTS_PAGE_CHOOSE_CLIENT = Choose a client
+RENTS_PAGE_CHOOSE_MATERIAL = Choose a material
+RENTS_PAGE_EDIT_STATUS = Rent status
+
+STATUS = Status
+STATUS_LATE_DELIVERY = Late delivery/payment
+STATUS_DONE = Done
+STATUS_PENDING = Pending
+STATUS_EDIT = Choose a state
+
+LOGIN = Login
+LOGIN_TITLE = Login | Control Panel
+LOGIN_ERROR = Wrong Unsername/Password !
+
+MONITOR_ERROR = Error while monitoring Rents !
+
+LANG_END
+
+FR 
+BUTTON_EDIT = Éditer
+BUTTON_ADD = Ajouter
+BUTTON_DELETE = Supprimer
+BUTTON_CANCEL = Annuler
+BUTTON_PREV = Précédent
+BUTTON_NEXT = Suivant
+BUTTON_CHANGE = Modifier
+BUTTON_UNBAN = Annuler l'exclusion
+
+MENU_TITLE = Panneau de configuration
+MENU_RENT = Locations
+MENU_CLIENTS = Clients
+MENU_MATERIALS = Les engins
+MENU_ADMINS = Administrateurs
+
+REPEATITION = fois
+
+YES = Oui
+NO = Non
+
+ADMIN_ALREADY_EXISTS = L'administrateur avec le même nom d'utilisateur existe déjà!
+ADMIN_ADD_SUCCESS = L'administrateur a été ajouté avec succès!
+ADMIN_ADD_FAILURE = Erreur lors de l'ajout d'un nouvel administrateur!
+ADMIN_EDIT_SUCCESS = L'administrateur a été modifié avec succès!
+ADMIN_EDIT_FAILURE = Erreur lors de la modification de l'administrateur!
+ADMIN_DELETE_SUCCESS = L'administrateur a été supprimé avec succès!
+ADMIN_DELETE_FAILURE = Erreur lors de la suppression de l'administrateur!
+ADMIN_PAGE_TITLE = Administrateurs | Panneau de configuration
+ADMIN_PAGE_TABLE_TITLE = Table des administrateurs
+ADMIN_PAGE_TABLE_USERNAME = Nom d'utilisateur
+ADMIN_PAGE_TABLE_CEO = Est le PDG
+ADMIN_PAGE_NEW_ADMIN = Ajouter un nouvel administrateur
+ADMIN_PAGE_EDIT = Modifier le compte
+ADMIN_PAGE_PASSWORD = Mot de passe
+ADMIN_PAGE_NEW_USERNAME = Nouveau nom d'utilisateur
+ADMIN_PAGE_NEW_PASSWORD = Nouveau mot de passe
+
+MATERIAL = Les Engins
+MATERIAL_ADD_SUCCESS = Engin ajouté avec succès!
+MATERIAL_ADD_FAILURE = Erreur lors de l'ajout de nouveau materiel!
+MATERIAL_EDIT_SUCCESS = Engin édité avec succès!
+MATERIAL_EDIT_FAILURE = Erreur lors de l'édition du Engin!
+MATERIAL_DELETE_SUCCESS = Engin supprimé avec succès!
+MATERIAL_DELETE_FAILURE = Erreur lors de la suppression du Engin!
+MATERIAL_IMG_NOT = Le fichier n'est pas une image
+MATERIAL_IMG_LARGE = Désolé, votre image est trop grandeDésolé, votre image est trop grande
+MATERIAL_IMG_TYPE = Seuls les fichiers JPG, JPEG, PNG sont autorisés.
+MATERIAL_IMG_UPLOAD_ERR = Une erreur s'est produite lors du téléchargement de votre fichier.
+MATERIAL_IMG_DELETE_ERR = Erreur lors de la suppression des images!
+MATERIAL_PAGE_TITLE = Engins | Panneau de configuration
+MATERIAL_PAGE_TABLE_TITLE = Table des engins
+MATERIAL_PAGE_TABLE_NAME = Nom d'engin
+MATERIAL_PAGE_TABLE_FREE = Est Libre (maintenant)
+MATERIAL_PAGE_TABLE_RENTS_NUM = Nombre de location
+MATERIAL_PAGE_TABLE_CLIENTS_LIST =  Liste des clients
+MATERIAL_PAGE_TABLE_IMAGE = Image
+MATERIAL_PAGE_TABLE_RENTED = Loué
+MATERIAL_PAGE_NEW_MATERIAL = Ajouter un nouveau engin
+MATERIAL_PAGE_EDIT_MATERIAL = Modifier l'engin
+MATERIAL_PAGE_PASSWORD = Mot de passe
+MATERIAL_PAGE_NEW_NAME = Nouveau nom d'engin
+MATERIAL_PAGE_NEW_IMAGE = Nouvelle image d'engin
+
+CLIENT_ADD_SUCCESS = Client ajouté avec succès!
+CLIENT_ADD_FAILURE = Erreur lors de l'ajout d'un nouveau client!
+CLIENT_EDIT_SUCCESS = Client modifié avec succès!
+CLIENT_EDIT_FAILURE = Erreur lors de l'édition du client!
+CLIENT_DELETE_SUCCESS = Client supprimé avec succès!
+CLIENT_DELETE_FAILURE = Erreur lors de la suppression du client!
+CLIENT_UNBAN_SUCCESS = Client non banni avec succès!
+CLIENT_UNBAN_FAILURE = Erreur lors de la suppression du client!
+CLIENT_PAGE_TITLE = Clients | Panneau de configuration
+CLIENT_PAGE_TABLE_TITLE = Table des clients
+CLIENT_PAGE_TABLE_FIRSTNAME = Prénom
+CLIENT_PAGE_TABLE_LASTNAME = Nom
+CLIENT_PAGE_TABLE_EMAIL = E-mail
+CLIENT_PAGE_TABLE_PHONE = Téléphone
+CLIENT_PAGE_NEW_CLIENT = Ajouter un nouveau client
+CLIENT_PAGE_EDIT_CLIENT = Modifier le client
+
+RENTS_ADD_SUCCESS = Location ajouté avec succès!
+RENTS_ADD_FAILURE = Erreur lors de l'ajout d'un nouveau location!
+RENTS_EDIT_SUCCESS = Location modifiée avec succès!
+RENTS_EDIT_FAILURE = Erreur lors de la modification de Location!
+RENTS_DELETE_SUCCESS = Location supprimée avec succès!
+RENTS_DELETE_FAILURE = Erreur lors de la suppression de Rent!
+RENTS_PAGE_TITLE = Locations | Panneau de configuration
+RENTS_PAGE_TABLE_TITLE = Table des locations
+RENTS_PAGE_TABLE_FIRSTNAME = Prénom
+RENTS_PAGE_TABLE_LASTNAME = Nom
+RENTS_PAGE_TABLE_CLIENT = Client
+RENTS_PAGE_TABLE_PRICE = Prix
+RENTS_PAGE_TABLE_DATE_CREATION = Date de création
+RENTS_PAGE_TABLE_DEADLINE = Date limite
+RENTS_PAGE_TABLE_AUTHOR = Author
+RENTS_PAGE_EDIT_RENT = Modifier le location
+RENTS_PAGE_ADD_RENT = Ajouter un nouveau location
+RENTS_PAGE_CHOOSE_CLIENT = Choisissez un client
+RENTS_PAGE_CHOOSE_MATERIAL = Choisissez un engin
+RENTS_PAGE_EDIT_STATUS = Statut du location
+
+STATUS = État
+STATUS_LATE_DELIVERY =  Retard de livraison / paiement
+STATUS_DONE = Terminé
+STATUS_PENDING = En attente
+STATUS_EDIT = Choisissez un état
+
+LOGIN = Connexion
+LOGIN_TITLE = Connexion | Panneau de configuration
+LOGIN_ERROR = Mauvais nom d'utilisateur / mot de passe!
+
+MONITOR_ERROR = Erreur lors de la surveillance des location!
+LANG_END

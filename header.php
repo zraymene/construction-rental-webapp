@@ -3,12 +3,11 @@
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
 ?>
-<link rel="stylesheet" href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/style.css\""; ?>>
-<link rel="icon" href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/dashboard.png\"";?> >
+<link rel="stylesheet" href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/css/style.css\""; ?>>
 
 <div class="topbar-wraper">
     <div class="lang-selec">
-        <form method="POST" action=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/admin/core/lang-changer.php\"";?>>
+        <form method="POST" action=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/core/lang-changer.php\"";?>>
             <select name="wanted_lang" class="select-field">
                 <option value="EN">ENG</option>
                 <option value="FR">FRA</option>
@@ -16,7 +15,7 @@
             <input type="submit" value=<?php LANG("BUTTON_CHANGE"); ?> class="btn">
         </form>
     </div>
-    <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/admin/auth/logout.php\"";?>><img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/exit.png\"";?> /></a>
+    <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/auth/logout.php\"";?>><img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/css/exit.png\"";?> /></a>
 </div>
 
 <div class="sidemenu-wraper">
@@ -24,27 +23,27 @@
             <h1><?php LANG("MENU_TITLE"); ?></h1>
         </div>
         
-        <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/admin/rents/\""; ?>>
+        <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/rents/\""; ?>>
             <div class="sidemenu-btn-icon">
-                <img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/contract.png\"";?> />
+                <img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/css/contract.png\"";?> />
             </div>
             <div class="sidemenu-btn-label">
                 <p><?php LANG("MENU_RENT"); ?></p>
             </div>
         </a>
         <hr>
-        <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/admin/materials/\""; ?>>
+        <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/materials/\""; ?>>
             <div class="sidemenu-btn-icon">
-                <img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/materials.png\"";?> />
+                <img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/css/materials.png\"";?> />
             </div>
             <div class="sidemenu-btn-label">
                 <p><?php LANG("MENU_MATERIALS"); ?></p>
             </div>
         </a>
         <hr>
-        <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/admin/clients/\""; ?>>
+        <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/clients/\""; ?>>
             <div class="sidemenu-btn-icon">
-                <img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/customer.png\"";?> />
+                <img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/css/customer.png\"";?> />
             </div>
             <div class="sidemenu-btn-label">
                 <p><?php LANG("MENU_CLIENTS"); ?></p>
@@ -53,12 +52,12 @@
         <hr>
         <?php
             if($_SESSION['admin']->is_ceo) {
-                echo "<a href=\"http://{$_SERVER['HTTP_HOST']}/pro/admin/\"/>
+                echo "<a href=\"http://{$_SERVER['HTTP_HOST']}/\"/>
                         <div class='sidemenu-btn-icon'>
-                            <img src=\"http://{$_SERVER['HTTP_HOST']}/pro/css/admin.png\"/>
+                            <img src=\"http://{$_SERVER['HTTP_HOST']}/css/admin.png\"/>
                         </div>
                         <div class='sidemenu-btn-label'>
-                            <p>Admins</p>
+                            <p>" . LANG_R("MENU_ADMINS") ."</p>
                         </div>
                     </a>
                     <hr>";

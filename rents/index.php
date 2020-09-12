@@ -40,8 +40,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 $client   = $_SESSION['CLIENTS_MANGER']->select_id($rent->client_id );
                 array_push($client->list_rents, $res); 
                 $new_cl = new Client();
-                $new_cl->id         = $client->id;
-                $new_cl->list_rents = $client->list_rents;
+                $new_cl->id           = $client->id;
+                $new_cl->number_rents = $client->number_rents + 1;
+                $new_cl->list_rents   = $client->list_rents;
                 $_SESSION['CLIENTS_MANGER']->update($new_cl);
 
                 // Add client's id to material's clients list
@@ -49,6 +50,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 array_push($material->list_clients, $client->id); 
                 $new_mat = new Material();
                 $new_mat->id           = $material->id;
+                $new_mat->number_rents = $material->number_rents + 1;
                 $new_mat->list_clients = $material->list_clients;
                 $new_mat->is_free      = FALSE;
            
@@ -76,17 +78,25 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 $material = $_SESSION['MATERIALS_MANGER']->select_id(intval($_POST["mat_id"]));
 
                 $new_mat = new Material();
-                $new_mat->id      = $material->id;
+                $new_mat->id  = $material->id;
 
                 if($_POST['status'] == "2") // Rent set to done then free material 
-                    $new_mat->is_free = TRUE;                   
-                else if($_POST['status'] == "1")           
+                {
+                    $new_mat->is_free = TRUE;             
+                    // If i put this out if statement it will give sql error 
+                    // cause we are calling update function but updating nothing 
+                    $_SESSION['MATERIALS_MANGER']->update($new_mat);    
+                }
+                else if($_POST['status'] == "1")  
+                {         
                     $new_mat->is_free = FALSE;
+                    $_SESSION['MATERIALS_MANGER']->update($new_mat);
+                }
+
                 
-
-                $_SESSION['MATERIALS_MANGER']->update($new_mat);
-
                 $new_rent->status = $_POST["status"];
+
+                $new_mat = null;
             }
 
             if($_SESSION['RENTS_MANGER']->update($new_rent))
@@ -102,44 +112,41 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             if(!$_SESSION['RENTS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
                 $error_msg = LANG_R("RENTS_DELETE_FAILURE");
             else{
+                // Delete rent's id from client's rents list
+                $client = $_SESSION['CLIENTS_MANGER']->select_id($_POST["clients_id"]);
+                if (($key = array_search($_POST['list_ids'][0] , $client->list_rents)) !== false) {
 
-                for($i = 0 ; $i <  $_POST['num_ids'] ; $i++)
-                {
-                    
-                    // Delete rent's id from client's rents list
-                    $client = $_SESSION['CLIENTS_MANGER']->select_id($_POST["clients_ids"][$i]);
-                    if (($key = array_search($_POST['list_ids'][$i] , $client->list_rents)) !== false) {
+                    unset($client->list_rents[$key]);
 
-                        unset($client->list_rents[$key]);
+                    if(count($client->list_rents) == 0)
+                        $client->list_rents = array();
 
-                        if(count($client->list_rents) == 0)
-                            $client->list_rents = array();
-
-                        $new_cl = new Client();
-                        $new_cl->id         = $client->id;
-                        $new_cl->list_rents = $client->list_rents;
-                        $_SESSION['CLIENTS_MANGER']->update($new_cl);
-                    }
-
-                    // Delete client's id from material's clients list
-                    $material = $_SESSION['MATERIALS_MANGER']->select_id($_POST["materials_ids"][$i]);
-                    if (($key = array_search($client->id , $material->list_clients)) !== false) {
-
-                        unset($material->list_clients[$key]);
-
-                        if(count($material->list_clients) == 0)
-                            $material->list_clients = array();
-
-                        $new_mat = new Material();
-                        $new_mat->id           = $material->id;
-                        $new_mat->list_clients = $material->list_clients;
-                        $new_mat->is_free      = TRUE;
-                        $_SESSION['MATERIALS_MANGER']->update($new_mat);
-                    }
-
-                    $material = $client = null;
+                    $new_cl = new Client();
+                    $new_cl->id           = $client->id;
+                    $new_cl->number_rents = $client->number_rents - 1;
+                    $new_cl->list_rents   = $client->list_rents;
+                    $_SESSION['CLIENTS_MANGER']->update($new_cl);
                 }
 
+                // Delete client's id from material's clients list
+                $material = $_SESSION['MATERIALS_MANGER']->select_id($_POST["materials_id"]);
+                if (($key = array_search($client->id , $material->list_clients)) !== false) {
+
+                    unset($material->list_clients[$key]);
+
+                    if(count($material->list_clients) == 0)
+                        $material->list_clients = array();
+                        
+                    $new_mat = new Material();
+                    $new_mat->id           = $material->id;
+                    $new_mat->number_rents = $material->number_rents - 1;
+                    $new_mat->list_clients = $material->list_clients;
+                    $new_mat->is_free      = TRUE;
+                    $_SESSION['MATERIALS_MANGER']->update($new_mat);
+                }
+
+                $material = $client = null;
+                
                 $info_msg = LANG_R("RENTS_DELETE_SUCCESS");
             }
          
@@ -156,8 +163,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php echo LANG("RENTS_PAGE_TITLE");?></title>
     <script src="../../js/scripts.js"></script>
+    <link rel="icon" href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/css/dashboard.png\"";?> >
 </head>
-<body>
+<body <?php echo "onload=\"lang_js('" . $_COOKIE[LANG_COOKIE_NAME] . "');\"";?>>
     <?php include("../header.php"); ?>
 
     <div class="content-wraper">

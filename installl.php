@@ -3,12 +3,12 @@
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
 
-require_once("admin/core/db_connect.php");
+require_once("core/db_connect.php");
 
 if( $_SERVER['REQUEST_METHOD'] == 'POST' )
 {
 
-    require_once("admin/core/systems.php");
+    require_once("core/systems.php");
 
     session_start();
 
@@ -26,8 +26,8 @@ if( $_SERVER['REQUEST_METHOD'] == 'POST' )
         header("Location:install.php");
     }
 
-  //  header("Location:/pro/");
-  //  unlink(__FILE__);
+    header("Location:/");
+    unlink(__FILE__);
 }
 
 $queries = array(
@@ -48,6 +48,7 @@ $queries = array(
         `email` varchar(255) NOT NULL,
         `phone` varchar(20) NOT NULL,
         `status` tinyint(4) NOT NULL,
+        `number_rents` INT NOT NULL,
         `list_rents` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
         PRIMARY KEY (`id`)
        ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8   ",
@@ -56,6 +57,7 @@ $queries = array(
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `name` varchar(255) NOT NULL,
         `is_free` tinyint(1) NOT NULL DEFAULT 0,
+        `number_rents` INT NOT NULL
         `list_clients` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`list_clients`)),
         `image_path` varchar(255) NOT NULL,
         PRIMARY KEY (`id`)
@@ -94,7 +96,7 @@ foreach ($queries as $query) {
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="css/dashboard.png">
 </head>
-<body>
+<body <?php echo "onload=\"lang_js(" . $_COOKIE["LANG_COOKIE_NAME"] . ");\"";?>>
     <div id="edit_wraper" class="popup-container">
             <?php 
                 if(!empty($error))
@@ -116,7 +118,7 @@ foreach ($queries as $query) {
                 <input name="username" type="text" class="username_field input-field"> <br>
                 <label for="password_field">Password:</label><br>
                 <input name="password" type="password" class="username_field input-field"><br>
-                <input type="submit" value="Register" id="btn">
+                <input type="submit" value="Register" class="btn">
             </form>
         </div>
     </div>

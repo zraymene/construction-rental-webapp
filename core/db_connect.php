@@ -3,7 +3,7 @@
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
 
-require_once($_SERVER['DOCUMENT_ROOT'] . "/pro/admin/core/config.php");
+require_once(__DIR__.  "/config.php");
 
 $db_connection =  new mysqli(DATABASE_SERV, DATABASE_USER, DATABASE_PASS);
 

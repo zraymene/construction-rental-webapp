@@ -6,9 +6,9 @@
  *  - View/Add/Edit/Remove other Materials
  * 
  */
-require("../core/db_connect.php");
-require("../core/systems.php");
-require("../core/lang.php");
+require_once("../core/db_connect.php");
+require_once("../core/systems.php");
+require_once("../core/lang.php"); 
 
 session_start();
 
@@ -79,6 +79,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             $mat = new Material();
             $mat->name          = $_POST['mat_name'];
             $mat->is_free       = TRUE;
+            $mat->number_rents     = 0;
             $mat->list_clients  = array();
             $mat->image_path    = $img_name;
             
@@ -149,9 +150,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             height : 100px;
         }
     </style>
-
+    <link rel="icon" href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/css/dashboard.png\"";?> >
 </head>
-<body>
+<body <?php echo "onload=\"lang_js('" . $_COOKIE[LANG_COOKIE_NAME] . "');\"";?>>
     <?php include("../header.php"); ?>
 
     <div class="content-wraper">
@@ -211,9 +212,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                             if($row['is_free'])
                             {
                                 $checkbox = "";
-                                $is_free = "YES";
+                                $is_free = LANG_R("YES");
                             }else {
-                                $is_free = "NO";
+                                $is_free = LANG_R("NO");
                             }
 
                             if($clients_list != null){
@@ -239,9 +240,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                             echo "<tr>\n<td><input type=\"checkbox\"/></td>
                                     <td>{$row['id']}</td>
                                     <td>{$row['name']}</td>
-                                    <td> {$is_free} </td>
-                                    <td>". count($clients_list) ."</td>
-                                    <td> {$cl_html} </td>
+                                    <td>{$is_free}</td>
+                                    <td>{$row['number_rents']}</td>
+                                    <td>{$cl_html}</td>
                                     <td><img src='imgs/{$row['image_path']}' alt='{$row['image_path']}'></td>
                                 </tr>
                                 ";

@@ -28,12 +28,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
         case "add":        
             
             $client = new Client();
-            $client->first_name = $_POST['first_name'];
-            $client->last_name  = $_POST['last_name'];
-            $client->email      = $_POST['email'];
-            $client->phone      = $_POST['phone'];
-            $client->status     = 1;
-            $client->list_rents = array();
+            $client->first_name   = $_POST['first_name'];
+            $client->last_name    = $_POST['last_name'];
+            $client->email        = $_POST['email'];
+            $client->phone        = $_POST['phone'];
+            $client->status       = 1;
+            $client->number_rents = 0;
+            $client->list_rents   = array();
 
             if($_SESSION['CLIENTS_MANGER']->add($client))
                 $info_msg = LANG_R("CLIENT_ADD_SUCCESS");
@@ -93,8 +94,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php LANG("CLIENT_PAGE_TITLE"); ?></title>
     <script src="../../js/scripts.js"></script>
+    <link rel="icon" href="../../css/dashboard.png">
 </head>
-<body>
+<body <?php echo "onload=\"lang_js('" . $_COOKIE[LANG_COOKIE_NAME] . "');\"";?>>
     <?php include("../header.php"); ?>
 
     <div class="content-wraper">
@@ -168,7 +170,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                                     <td>{$row['last_name']}</td>
                                     <td>{$row['email']}</td>
                                     <td>{$row['phone']}</td>
-                                    <td>". count($rents_list) ."</td>
+                                    <td>{$row['number_rents']}</td>
                                 </tr>
                                 ";
                         }

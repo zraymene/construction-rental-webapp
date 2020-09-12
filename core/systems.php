@@ -12,7 +12,7 @@ class Client
     var $last_name;
     var $email;
     var $phone;
-    var $num_rent;          // Rents IDs
+    var $number_rents;          // Rents IDs
     var $list_rents;
     var $status;            // Number of late deliveries + 1 , 1 clean
 }
@@ -21,7 +21,7 @@ class Material
 {
     var $id;
     var $name;
-    var $num_rents;
+    var $number_rents;
     var $is_free;
     var $list_clients;      // Clients IDs
     var $image_path;    
@@ -176,7 +176,8 @@ abstract class AbstractManger
 
         foreach ($new_obj as $var => $val) {
 
-            if( !empty($val) || gettype($val) == "array" || ( isset($val) && !empty($val) || is_bool($val) )) {      // IDK how it did work tho
+            if( !empty($val) || gettype($val) == "array" || ( isset($val) && !empty($val) || is_bool($val) )
+                        || ($var == "number_rents" && $val === 0 )) {      // IDK how it did work tho
                 if($var != "id" )    // I was forced to add this condition alone , because it won't work if it is in the IF above
                 {                
                         switch(gettype($val))
@@ -216,7 +217,7 @@ abstract class AbstractManger
 
         array_push($arr , $new_obj->id);
 
-       // echo "<br>". $query;
+        //echo "<br>". $query . "<br>" . $bind_param_str;
 
         if(!($ps = $this->db_connection->prepare($query)))
         {
@@ -285,10 +286,10 @@ class MaterialsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query              = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `is_free`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?);";
+        $this->add_query              = "INSERT INTO ". DATABASE_NAME .".`materials` ( `name`, `is_free`, `number_rents`, `list_clients`, `image_path`) VALUES ( ?, ?, ?, ?, ?);";
         $this->delete_id_query        = "DELETE FROM ". DATABASE_NAME .".`materials` WHERE `id` ";
         $this->select_id_query        = "SELECT * FROM ". DATABASE_NAME .".`materials` WHERE `id` = ?";
-        $this->select_range_query     = "SELECT * FROM ". DATABASE_NAME .".`materials` LIMIT ";
+        $this->select_range_query     = "SELECT * FROM ". DATABASE_NAME .".`materials` ORDER BY `number_rents` DESC LIMIT ";
         $this->update_id_query        = "UPDATE ". DATABASE_NAME .".`materials` SET ";
         $this->count_total_rows_query = "SELECT count(*) AS total FROM ". DATABASE_NAME .".`materials`";
     }
@@ -301,7 +302,7 @@ class MaterialsManger extends AbstractManger
         $obj->name          = $res['name'];
         $obj->is_free       = $res['is_free'];
         $obj->list_clients  = json_decode($res['list_clients']);
-        $obj->num_rents     = count($obj->list_clients);
+        $obj->number_rents     = $res["number_rents"];
 
         return $obj;
     }
@@ -310,9 +311,10 @@ class MaterialsManger extends AbstractManger
     {
         $json_str = json_encode($obj->list_clients);  // To prevent pass by refrence warning in bin_parm 
 
-        $ps->bind_param("siss",
+        $ps->bind_param("siiss",
                     $obj->name,
                     $obj->is_free,
+                    $obj->number_rents,
                     $json_str,
                     $obj->image_path );
   
@@ -326,10 +328,10 @@ class ClientsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `status`, `list_rents`) VALUES ( ?, ?, ?, ?, ?, ?);";
+        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `status`, `number_rents`, `list_rents`) VALUES ( ?, ?, ?, ?, ?, ?, ?);";
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
-        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` LIMIT ";
+        $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` ORDER BY `number_rents` DESC LIMIT ";
         $this->update_id_query    = "UPDATE ". DATABASE_NAME .".`clients` SET ";
         $this->count_total_rows_query = "SELECT count(*) AS total FROM ". DATABASE_NAME .".`clients`";
     }
@@ -338,14 +340,14 @@ class ClientsManger extends AbstractManger
     {
         $obj = new Client();
 
-        $obj->id         = $res['id'];
-        $obj->first_name = $res['first_name'];
-        $obj->last_name  = $res['last_name'];
-        $obj->email      = $res['email'];
-        $obj->phone      = $res['phone'];
-        $obj->list_rents = json_decode($res['list_rents']);
-        $obj->num_rents  = count($obj->list_rents);
-        $obj->status     = $res['status'];
+        $obj->id            = $res['id'];
+        $obj->first_name    = $res['first_name'];
+        $obj->last_name     = $res['last_name'];
+        $obj->email         = $res['email'];
+        $obj->phone         = $res['phone'];
+        $obj->list_rents    = json_decode($res['list_rents']);
+        $obj->number_rents  = $res['number_rents'];
+        $obj->status        = $res['status'];
         return $obj;
     }
 
@@ -353,20 +355,16 @@ class ClientsManger extends AbstractManger
     {
         $json_str = json_encode($obj->list_rents);  // To prevent pass by refrence warning in bin_parm 
 
-        $ps->bind_param('ssssis',
+        $ps->bind_param('ssssiis',
                     $obj->first_name,
                     $obj->last_name,
                     $obj->email,
                     $obj->phone,
                     $obj->status,
+                    $obj->number_rents,
                     $json_str
                 );
   
-    }
-
-    public function select_range($start , $end)
-    {
-        
     }
 }
 
@@ -416,7 +414,7 @@ class RentsManger extends AbstractManger
     public function load_pending() 
     {
         $query = "SELECT `id`, `client_id`, `material_id` FROM ". DATABASE_NAME .".`rents` 
-                        WHERE `status` = 1 AND `deadline_date` >= CURRENT_DATE()";
+                        WHERE `status` = 1 AND `deadline_date` <= CURRENT_DATE()";
         
         if(!($res = $this->db_connection->query($query))) 
         {

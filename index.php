@@ -7,6 +7,18 @@
  *  - View/Add/Edit/Remove other admins
  * 
  */
+$install_file = "install.php";
+
+if(file_exists($install_file))
+{
+        echo 'Found fine : installing !';
+
+//        header( "Location:".$install_file );
+
+}
+
+$install_file = null;
+
 require("core/db_connect.php");
 require("core/systems.php");
 
@@ -97,8 +109,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?php LANG("ADMIN_PAGE_TITLE"); ?></title>
     <script src="../js/scripts.js"></script>
+    <link rel="icon" href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/css/dashboard.png\"";?> >
 </head>
-<body>
+<body <?php echo "onload=\"lang_js('" . $_COOKIE[LANG_COOKIE_NAME] . "');\"";?>>
     <?php include("header.php"); ?>
 
     <div class="content-wraper">
@@ -146,9 +159,9 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                         if($row['is_ceo'])
                         {
                             $checkbox = "";
-                            $is_ceo = "YES";
+                            $is_ceo = LANG_R("YES");
                         }else {
-                            $is_ceo = "NO";
+                            $is_ceo = LANG_R("NO");
                             $checkbox = "<input type=\"checkbox\"/>";
                         }
                         echo "<tr>\n<td>{$checkbox}</td>

@@ -2,16 +2,46 @@
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
 
-var MSG_UP_EMPTY = "Username/Password is empty !";
-var MSG_CHECKBOX_EMPTY = "You must pick a row !";
-var MSG_CHECKBOX_MULTI = "You must pick only one row !";
-var MSG_FIELDS_EMPTY = "You must fill those fields !";
-var MSG_CONFIRM_DELETION = "Click Yes to confirm the deletion :";
-var MSG_CONFIRM_UNBAN = "Click Yes to confirm the unban process :";
 
-var MSG_RENTINFO_EMPTY = "Rent info is undefined !";
-var MSG_CLIENTINFO_EMPTY = "Client info is undefined !";
-var MSG_MATINFO_EMPTY = "Material name is undefined !";
+var en = {
+     MSG_UP_EMPTY : "Username/Password is empty !",
+     MSG_CHECKBOX_EMPTY : "You must pick a row !",
+     MSG_CHECKBOX_MULTI : "You must pick only one row !",
+     MSG_FIELDS_EMPTY : "You must fill those fields !",
+     MSG_CONFIRM_DELETION : "Click Yes to confirm the deletion :",
+     MSG_CONFIRM_UNBAN : "Click Yes to confirm the unban process :",
+     MSG_RENTINFO_EMPTY : "Rent info is undefined !",
+     MSG_CLIENTINFO_EMPTY : "Client info is undefined !",
+     MSG_MATINFO_EMPTY : "Material name is undefined !"
+};
+
+
+var fr = {
+    MSG_UP_EMPTY : "Le nom d'utilisateur / mot de passe est vide!",
+    MSG_CHECKBOX_EMPTY : "Vous devez choisir une ligne!",
+    MSG_CHECKBOX_MULTI : "Vous ne devez choisir qu'une seule ligne!",
+    MSG_FIELDS_EMPTY : "Vous devez remplir ces champs!",
+    MSG_CONFIRM_DELETION : "Cliquez sur Oui pour confirmer la suppression:",
+    MSG_CONFIRM_UNBAN : "Cliquez sur Oui pour confirmer le processus d'exclusion:",
+    MSG_RENTINFO_EMPTY : "Les informations de location ne sont pas définies!",
+    MSG_CLIENTINFO_EMPTY : "Les informations sur le client ne sont pas définies!",
+    MSG_MATINFO_EMPTY : "Le nom du matériau n'est pas défini!"
+};
+
+var CURRENT_LANG;
+
+function lang_js(lang) 
+{
+    switch(lang)
+    {
+        case "EN":
+            CURRENT_LANG = en;
+            break;
+        case "FR":
+            CURRENT_LANG = fr;
+            break;
+    }
+}
 
 function check_empty(str)
 {
@@ -25,7 +55,7 @@ function verify_data(wanted_form)
 {
 
     if ( check_empty(wanted_form["username"].value) || check_empty(wanted_form["password"].value)) {
-        alert(MSG_UP_EMPTY);
+        alert(CURRENT_LANG.MSG_UP_EMPTY);
         event.preventDefault();
         return false;
     }
@@ -59,14 +89,14 @@ function material_edit_form_submit(edit_form)
 
     if(counter == 0)
     {
-        alert(MSG_CHECKBOX_EMPTY);
+        alert(CURRENT_LANG.MSG_CHECKBOX_EMPTY);
         event.preventDefault();
         return;
     }
 
     if(counter > 1)                  // Great , he picked more then 1 
     {
-        alert(MSG_CHECKBOX_MULTI);
+        alert(CURRENT_LANG.MSG_CHECKBOX_MULTI);
         event.preventDefault();
         return;
     }
@@ -75,7 +105,7 @@ function material_edit_form_submit(edit_form)
 
     if ( check_empty(mat_name) && edit_form['mat_img'].files.length == 0) 
     {
-        alert(MSG_FIELDS_EMPTY);
+        alert(CURRENT_LANG.MSG_FIELDS_EMPTY);
         event.preventDefault();
         return;
     }
@@ -107,14 +137,14 @@ function admin_edit_form_submit(edit_form)
 
     if(counter == 0)
     {
-        alert(MSG_CHECKBOX_EMPTY);
+        alert(CURRENT_LANG.MSG_CHECKBOX_EMPTY);
         event.preventDefault();
         return;
     }
 
     if(counter > 1)     // Great , he picked more then 1 
     {
-        alert(MSG_CHECKBOX_MULTI);
+        alert(CURRENT_LANG.MSG_CHECKBOX_MULTI);
         event.preventDefault();
         return;
     }
@@ -124,7 +154,7 @@ function admin_edit_form_submit(edit_form)
 
     if ( check_empty(user) && check_empty(pass)) 
     {
-        alert(MSG_FIELDS_EMPTY);
+        alert(CURRENT_LANG.MSG_FIELDS_EMPTY);
         event.preventDefault();
         return;
     }
@@ -155,14 +185,14 @@ function rents_edit_form_submit(edit_form)
 
     if(counter == 0)
     {
-        alert(MSG_CHECKBOX_EMPTY);
+        alert(CURRENT_LANG.MSG_CHECKBOX_EMPTY);
         event.preventDefault();
         return;
     }
 
     if(counter > 1)     // Great , he picked more then 1 
     {
-        alert(MSG_CHECKBOX_MULTI);
+        alert(CURRENT_LANG.MSG_CHECKBOX_MULTI);
         event.preventDefault();
         return;
     }
@@ -204,14 +234,14 @@ function clients_edit_form_submit(edit_form)
 
     if(counter == 0)
     {
-        alert(MSG_CHECKBOX_EMPTY);
+        alert(CURRENT_LANG.MSG_CHECKBOX_EMPTY);
         event.preventDefault();
         return;
     }
 
     if(counter > 1)     // Great , he picked more then 1 
     {
-        alert(MSG_CHECKBOX_MULTI);
+        alert(CURRENT_LANG.MSG_CHECKBOX_MULTI);
         event.preventDefault();
         return;
     }
@@ -223,7 +253,7 @@ function clients_edit_form_submit(edit_form)
 
     if ( check_empty(first_name) && check_empty(last_name) && check_empty(email) && check_empty(phone)) 
     {
-        alert(MSG_FIELDS_EMPTY);
+        alert(CURRENT_LANG.MSG_FIELDS_EMPTY);
         event.preventDefault();
         return;
     }
@@ -264,37 +294,45 @@ function delete_form_submit(post_type = 0)
 
                     break;
                 case 2 :
-                    var new_cl_id_element = document.createElement("input");
+                    if(num_ids == 0)
+                    {
+                        var new_cl_id_element = document.createElement("input");
 
-                    new_cl_id_element.type = "hidden";
-                    new_cl_id_element.name = "clients_ids[]";
-                    new_cl_id_element.value = checkboxes[i].parentNode.parentNode.cells[2].id;
+                        new_cl_id_element.type = "hidden";
+                        new_cl_id_element.name = "clients_id";
+                        new_cl_id_element.value = checkboxes[i].parentNode.parentNode.cells[2].id;
 
-                    var new_mat_id_element = document.createElement("input");
+                        var new_mat_id_element = document.createElement("input");
 
-                    new_mat_id_element.type = "hidden";
-                    new_mat_id_element.name = "materials_ids[]";
-                    new_mat_id_element.value = checkboxes[i].parentNode.parentNode.cells[3].id;
+                        new_mat_id_element.type = "hidden";
+                        new_mat_id_element.name = "materials_id";
+                        new_mat_id_element.value = checkboxes[i].parentNode.parentNode.cells[3].id;
 
-                    delete_form.appendChild(new_cl_id_element);
-                    delete_form.appendChild(new_mat_id_element);
-
+                        delete_form.appendChild(new_cl_id_element);
+                        delete_form.appendChild(new_mat_id_element);
+                    }
                     break;
             }   
 
             num_ids++;
         }
     }
+
+    if(num_ids > 1 && post_type == 2)
+    {
+        alert(CURRENT_LANG.MSG_CHECKBOX_MULTI)
+        return;
+    }
     
     if(num_ids == 0)
     {
-        alert(MSG_CHECKBOX_EMPTY);
+        alert(CURRENT_LANG.MSG_CHECKBOX_EMPTY);
         return;
     }
 
     delete_form['num_ids'].value  = num_ids;
 
-    if(confirm(MSG_CONFIRM_DELETION))
+    if(confirm(CURRENT_LANG.MSG_CONFIRM_DELETION))
         document.forms['delete_form'].submit();
 }
 
@@ -318,19 +356,19 @@ function unban_form_submit()
     
     if(num == 0)
     {
-        alert(MSG_CHECKBOX_EMPTY);
+        alert(CURRENT_LANG.MSG_CHECKBOX_EMPTY);
         return;
     }
 
     if(num > 1)
     {
-        alert(MSG_CHECKBOX_EMPTY);
+        alert(CURRENT_LANG.MSG_CHECKBOX_EMPTY);
         return;
     }
 
     unban_form['client_id'].value  = client_id;
 
-    if(confirm(MSG_CONFIRM_UNBAN))
+    if(confirm(CURRENT_LANG.MSG_CONFIRM_UNBAN))
         unban_form.submit();
 }
 
@@ -348,9 +386,9 @@ function toggle_display(val)
 function verify_rent_data(add_form)
 {
     if(check_empty(add_form["price"].value) || add_form["client_id"].value == "0" 
-       || add_form["material_id"].value == "0" || check_empty(add_form["deadline"].value))
+       || add_form["material_id"].value == "0" || check_empty(add_form["deadline"].value) )
     {
-        alert(MSG_RENTINFO_EMPTY);
+        alert(CURRENT_LANG.MSG_RENTINFO_EMPTY);
         event.preventDefault();
     }
 
@@ -359,11 +397,11 @@ function verify_rent_data(add_form)
 
 function verify_client_data(add_form)
 {
-    if(check_empty(add_form["first_name"].value) || check_empty(add_form["last_name"].value
+    if(check_empty(add_form["first_name"].value) || check_empty(add_form["last_name"].value)
        || check_empty(add_form["email"].value) || check_empty(add_form["phone"].value)
-    ))
+    )
     {
-        alert(MSG_CLIENTINFO_EMPTY);
+        alert(CURRENT_LANG.MSG_CLIENTINFO_EMPTY);
         event.preventDefault();
     }
 }
@@ -372,7 +410,7 @@ function verify_material_data(add_form)
 {
     if(check_empty(add_form["mat_name"].value))
     {
-        alert(MSG_MATINFO_EMPTY);
+        alert(CURRENT_LANG.MSG_MATINFO_EMPTY);
         event.preventDefault();
     }
 }
