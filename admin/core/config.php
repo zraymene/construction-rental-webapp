@@ -34,6 +34,8 @@ define("LANG_COOKIE_NAME"  , "lang-cookie");
 define("LANG_COOKIE_DEFAULT" , LANG_EN);
 define("LANG_COOKIE_LIFE"   , 2147483647); // Make the cookie lasts till January 19, 2038 at 4:14:07 AM , Eternal Cookie , The number is Max number that an int can hold 2^(31) - 1
 
+define("CLIENT_MAX_LATE_BAN" , 3);   // Max Number of late deliveries/payment , if client reached this number he will get banned
+
 function LANG($key)
 {
     echo $_SESSION['LANG_DATA'][$key];

@@ -9,13 +9,13 @@
  */
 require("core/db_connect.php");
 require("core/systems.php");
-require("core/lang.php");
 
 session_start();
 
-lang_init();
+refresh_mangers(RENTS_MANGER_FLAG | CLIENTS_MANGER_FLAG | MATERIALS_MANGER_FLAG | ADMINS_MANGER_FLAG,$db_connection);
 
-refresh_mangers(ADMINS_MANGER_FLAG,$db_connection);
+if(!monitor_rents())
+    $error_msg = LANG_R("MONITOR_ERROR");
 
 if(!isset($_SESSION['admin']))   // Check if admin is already loged in 
 {

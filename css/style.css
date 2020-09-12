@@ -211,6 +211,19 @@ th {
     width: 50%;
 }
 
+.tabel-td-pending{
+    background-color: rgba(247, 202, 24, 0.5);
+}
+
+.tabel-td-danger {
+    background-color: rgba(240, 52, 52, 0.5);
+}
+
+.tabel-td-banned {
+    background-color: rgba(0, 0, 0, 0.8);
+    color: white;
+}
+
 .popup-container{
     position: absolute;
     background-color: rgba(0, 0, 0, 0.5);

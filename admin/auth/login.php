@@ -4,8 +4,12 @@
  */
 require_once("../core/db_connect.php");
 require_once("../core/systems.php");
+require("../core/lang.php");
 
 session_start();
+
+if(!isset($_SESSION["LANG_DATA"]))
+    lang_init();
 
 $error = "";
 
@@ -26,7 +30,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
     }else
     {
         LOG_ERROR('Admin login failure from IP :' . $_SERVER['REMOTE_ADDR'],__LINE__ , __FILE__);
-        $error = "Wrong Username/Password!";
+        $error = LANG_R("LOGIN_ERROR");
     }
 }
 
@@ -36,7 +40,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin login</title>
+    <title><?php LANG("LOGIN_TITLE"); ?></title>
     <link rel="stylesheet" href="../../css/style.css">
     <link rel="icon" href="../../css/dashboard.png">
 </head>
@@ -57,11 +61,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             }
         ?>
         <div class="container center">
-            <h1>Login</h1>
+            <h1><?php LANG("LOGIN"); ?></h1>
             <form name="auth_form" method="POST" action="login.php" onsubmit="verify_data(this);">
-                <label for="username_field">Username:</label><br>
+                <label for="username_field"><?php LANG("ADMIN_PAGE_TABLE_USERNAME"); ?>:</label><br>
                 <input name="username" type="text" class="input-field"> <br>
-                <label for="password_field">Password:</label><br>
+                <label for="password_field"><?php LANG("ADMIN_PAGE_PASSWORD"); ?>:</label><br>
                 <input name="password" type="password" class="input-field"><br>
                 <input type="submit" value="Login" class="btn">
             </form>

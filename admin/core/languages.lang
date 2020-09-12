@@ -16,11 +16,14 @@ BUTTON_CANCEL = Cancel
 BUTTON_PREV = Previous
 BUTTON_NEXT = Next
 BUTTON_CHANGE = Change
+BUTTON_UNBAN = Unban
 
 MENU_TITLE = Control Panel
 MENU_RENT = Rents
 MENU_CLIENTS = Clients
 MENU_MATERIALS = Materials
+
+REPEATITION = time
 
 ADMIN_ALREADY_EXISTS = Admin with the same username already exists !
 ADMIN_ADD_SUCCESS = Admin added successfully !
@@ -39,6 +42,7 @@ ADMIN_PAGE_PASSWORD = Password
 ADMIN_PAGE_NEW_USERNAME = New Username 
 ADMIN_PAGE_NEW_PASSWORD = New Password 
 
+MATERIAL = Material
 MATERIAL_ADD_SUCCESS = Material added successfully !
 MATERIAL_ADD_FAILURE = Error while adding new material !
 MATERIAL_EDIT_SUCCESS = Material edited successfully !
@@ -57,11 +61,12 @@ MATERIAL_PAGE_TABLE_FREE = Is Free (Now)
 MATERIAL_PAGE_TABLE_RENTS_NUM = Number of rents
 MATERIAL_PAGE_TABLE_CLIENTS_LIST = Clients list
 MATERIAL_PAGE_TABLE_IMAGE = Image
-MATERIAL_PAGE_TABLE_IMAGE = Rented
+MATERIAL_PAGE_TABLE_RENTED = Rented
 MATERIAL_PAGE_NEW_MATERIAL = Add new material
+MATERIAL_PAGE_EDIT_MATERIAL = Edit material
 MATERIAL_PAGE_PASSWORD = Password
-MATERIAL_PAGE_NEW_NAME = New Material name :
-MATERIAL_PAGE_NEW_IMAGE = New Material image :
+MATERIAL_PAGE_NEW_NAME = New Material name 
+MATERIAL_PAGE_NEW_IMAGE = New Material image 
 
 CLIENT_ADD_SUCCESS = Client added successfully !
 CLIENT_ADD_FAILURE = Error while adding new client !
@@ -69,6 +74,8 @@ CLIENT_EDIT_SUCCESS = Client edited successfully !
 CLIENT_EDIT_FAILURE = Error while editing Client !
 CLIENT_DELETE_SUCCESS = Client deleted successfully !
 CLIENT_DELETE_FAILURE = Error while deleting Client !
+CLIENT_UNBAN_SUCCESS = Client unbanned successfully !
+CLIENT_UNBAN_FAILURE = Error while unbanning Client !
 CLIENT_PAGE_TITLE = Clients | Control Panel
 CLIENT_PAGE_TABLE_TITLE = Clients Table
 CLIENT_PAGE_TABLE_FIRSTNAME = First name
@@ -86,17 +93,33 @@ RENTS_DELETE_SUCCESS = Rent deleted successfully !
 RENTS_DELETE_FAILURE = Error while deleting Rent !
 RENTS_PAGE_TITLE = Rents | Control Panel
 RENTS_PAGE_TABLE_TITLE = Rents Table
-CLIENT_PAGE_TABLE_FIRSTNAME = First name
-CLIENT_PAGE_TABLE_LASTNAME = Last name
-CLIENT_PAGE_TABLE_CLIENT = Client
-CLIENT_PAGE_TABLE_PRICE = Price
-CLIENT_PAGE_TABLE_DATE_CREATION = Creation date
-CLIENT_PAGE_TABLE_DEADLINE = Deadline
-CLIENT_PAGE_TABLE_AUTHOR = Author
+RENTS_PAGE_TABLE_FIRSTNAME = First name
+RENTS_PAGE_TABLE_LASTNAME = Last name
+RENTS_PAGE_TABLE_CLIENT = Client
+RENTS_PAGE_TABLE_PRICE = Price
+RENTS_PAGE_TABLE_DATE_CREATION = Creation date
+RENTS_PAGE_TABLE_DEADLINE = Deadline
+RENTS_PAGE_TABLE_AUTHOR = Author
+RENTS_PAGE_EDIT_RENT = Edit rent
+RENTS_PAGE_ADD_RENT = Add new rent
+RENTS_PAGE_CHOOSE_CLIENT = Choose a client
+RENTS_PAGE_CHOOSE_MATERIAL = Choose a material
+RENTS_PAGE_EDIT_STATUS = Rent status
+
+STATUS = Status
+STATUS_LATE_DELIVERY = Late delivery/payment
+STATUS_DONE = Done
+STATUS_PENDING = Pending
+STATUS_EDIT = Choose a state
+
+LOGIN = Login
+LOGIN_TITLE = Login | Control Panel
+LOGIN_ERROR = Wrong Unsername/Password !
+
+MONITOR_ERROR = Error while monitoring Rents !
 
 LANG_END
 
 FR 
-
 
 LANG_END

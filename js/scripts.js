@@ -6,7 +6,8 @@ var MSG_UP_EMPTY = "Username/Password is empty !";
 var MSG_CHECKBOX_EMPTY = "You must pick a row !";
 var MSG_CHECKBOX_MULTI = "You must pick only one row !";
 var MSG_FIELDS_EMPTY = "You must fill those fields !";
-var MSG_CONFIRM_DELETION = "Click Yest to confirm the deletion :"
+var MSG_CONFIRM_DELETION = "Click Yes to confirm the deletion :";
+var MSG_CONFIRM_UNBAN = "Click Yes to confirm the unban process :";
 
 var MSG_RENTINFO_EMPTY = "Rent info is undefined !";
 var MSG_CLIENTINFO_EMPTY = "Client info is undefined !";
@@ -137,6 +138,7 @@ function rents_edit_form_submit(edit_form)
 
     var counter = 0;
     var rent_id;
+    var mat_id;
 
     for(var i = 0; i < checkboxes.length ; i++)
     {
@@ -145,6 +147,7 @@ function rents_edit_form_submit(edit_form)
             if(counter == 0)        // Pick the first one and wish the user didn't check more then 1 
             {
                 rent_id = checkboxes[i].parentNode.parentNode.cells[1].innerHTML;
+                mat_id  = checkboxes[i].parentNode.parentNode.cells[3].id;
             }
             counter++;
         }
@@ -164,19 +167,20 @@ function rents_edit_form_submit(edit_form)
         return;
     }
 
-    var price = edit_form["price"].value;
+    var price     = edit_form["price"].value;
     var deadline  = edit_form["deadline"].value;
+    var status    = edit_form["status"].value;
 
 
-    if ( check_empty(price) && check_empty(deadline)) 
+    if ( check_empty(price) && check_empty(deadline) && status == 0) 
     {
         alert(MSG_FIELDS_EMPTY);
         event.preventDefault();
         return;
     }
-    
+ 
     edit_form['id'].value = rent_id;
-
+    edit_form['mat_id'].value = mat_id;
 }
 
 function clients_edit_form_submit(edit_form)
@@ -293,6 +297,43 @@ function delete_form_submit(post_type = 0)
     if(confirm(MSG_CONFIRM_DELETION))
         document.forms['delete_form'].submit();
 }
+
+function unban_form_submit()
+{
+    var checkboxes  = document.getElementById('elements_table').getElementsByTagName('INPUT');
+    var unban_form = document.forms['unban_form'];
+    var num     = 0;
+    var client_id;
+
+    for(var i = 0; i < checkboxes.length ; i++)
+    {
+        if(checkboxes[i].checked )
+        {
+            if(checkboxes[i].parentNode.parentNode.className == "tabel-td-banned") {
+                client_id  = checkboxes[i].parentNode.parentNode.cells[1].innerHTML;
+                num++;
+            }
+        }
+    }
+    
+    if(num == 0)
+    {
+        alert(MSG_CHECKBOX_EMPTY);
+        return;
+    }
+
+    if(num > 1)
+    {
+        alert(MSG_CHECKBOX_EMPTY);
+        return;
+    }
+
+    unban_form['client_id'].value  = client_id;
+
+    if(confirm(MSG_CONFIRM_UNBAN))
+        unban_form.submit();
+}
+
 
 function toggle_display(val)
 {

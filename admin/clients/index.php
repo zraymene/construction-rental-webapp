@@ -32,6 +32,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             $client->last_name  = $_POST['last_name'];
             $client->email      = $_POST['email'];
             $client->phone      = $_POST['phone'];
+            $client->status     = 1;
             $client->list_rents = array();
 
             if($_SESSION['CLIENTS_MANGER']->add($client))
@@ -51,8 +52,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             $new_client->email      = $_POST['email'];
             $new_client->phone      = $_POST['phone'];
 
-            var_dump($new_client);
-
             if($_SESSION['CLIENTS_MANGER']->update($new_client))
                 $info_msg = LANG_R("CLIENT_EDIT_SUCCESS");
             else
@@ -68,6 +67,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             else
                 $info_msg = LANG_R("CLIENT_DELETE_SUCCESS");
          
+            break;
+        case "unban":
+
+            $new_client = new Client();
+            $new_client->id     = $_POST['client_id'];
+            $new_client->status = 1;
+
+            if($_SESSION['CLIENTS_MANGER']->update($new_client))
+                $info_msg = LANG_R("CLIENT_UNBAN_SUCCESS");
+            else
+                $error_msg = LANG_R("CLIENT_UNBAN_FAILURE");
+
+            $new_client = null;
             break;
     }
 }
@@ -138,8 +150,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                         while($row = $res->fetch_array())
                         {  
                             $rents_list = json_decode($row['list_rents']);
+                            
+                            $status = "";
+                            $penalties = $row["status"];
 
-                            echo "<tr>\n<td><input type=\"checkbox\"/></td>
+                            if($penalties >= CLIENT_MAX_LATE_BAN)
+                                $status = "tabel-td-banned";
+                            else if($penalties == CLIENT_MAX_LATE_BAN - 1)
+                                $status = "tabel-td-danger";
+                            else if($penalties > 1)
+                                $status = "tablet-td-pending";
+                            
+
+                            echo "<tr class='{$status}'>\n<td><input type=\"checkbox\"/></td>
                                     <td>{$row['id']}</td>
                                     <td>{$row['first_name']}</td>
                                     <td>{$row['last_name']}</td>
@@ -166,6 +189,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             <div class="btns-wraper">
                 <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_EDIT"); ?></button>
                 <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_ADD"); ?></button>
+                <button type="button" onclick="unban_form_submit();" class="btn"><?php LANG("BUTTON_UNBAN"); ?></button>
                 <button type="button" onclick="delete_form_submit();" class="btn"><?php LANG("BUTTON_DELETE"); ?></button>
             </div>
             </div>
@@ -186,7 +210,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     <label for="phone_field"><?php LANG("CLIENT_PAGE_TABLE_PHONE"); ?>:</label><br>
                     <input name="phone" type="number" class="phone_field input-field" ><br>
                     <div class="btns-wraper">
-                        <input type="submit" value="Add" class="btn">
+                        <input type="submit" value=<?php LANG_1("BUTTON_ADD"); ?> class="btn">
                         <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
@@ -208,7 +232,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     <label for="phone_field"><?php LANG("CLIENT_PAGE_TABLE_PHONE"); ?>:</label><br>
                     <input name="phone" type="number" class="phone_field input-field" ><br>
                     <div class="btns-wraper">
-                        <input type="submit" value="Edit" class="btn">
+                        <input type="submit" value=<?php LANG_1("BUTTON_EDIT"); ?> class="btn">
                         <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
@@ -219,7 +243,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             <input type="hidden" name="action_type" value="delete" />
             <input type="hidden" name="num_ids" value="delete" />
         </form>
-
+        <form name="unban_form" method="POST" action="index.php">
+            <input type="hidden" name="action_type" value="unban" />
+            <input type="hidden" name="client_id" value="delete" />
+        </form>
     </div>
 </body>
 </html>

@@ -47,6 +47,7 @@ $queries = array(
         `last_name` varchar(255) NOT NULL,
         `email` varchar(255) NOT NULL,
         `phone` varchar(20) NOT NULL,
+        `status` tinyint(4) NOT NULL,
         `list_rents` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL,
         PRIMARY KEY (`id`)
        ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8   ",
@@ -67,6 +68,7 @@ $queries = array(
         `price` double NOT NULL DEFAULT 0,
         `creation_date` datetime NOT NULL,
         `deadline_date` date NOT NULL,
+        `status` tinyint(4) NOT NULL,
         `author_id` INT(11) NOT NULL,
         PRIMARY KEY (`id`)
        ) ENGINE=InnoDB AUTO_INCREMENT=5 DEFAULT CHARSET=utf8"

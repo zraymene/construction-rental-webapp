@@ -13,7 +13,7 @@
                 <option value="EN">ENG</option>
                 <option value="FR">FRA</option>
             </select>
-            <input type="submit" value="Change" class="btn">
+            <input type="submit" value=<?php LANG("BUTTON_CHANGE"); ?> class="btn">
         </form>
     </div>
     <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/admin/auth/logout.php\"";?>><img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/exit.png\"";?> /></a>
@@ -21,7 +21,7 @@
 
 <div class="sidemenu-wraper">
         <div class="sidemenu-title">
-            <h1>Control Panel</h1>
+            <h1><?php LANG("MENU_TITLE"); ?></h1>
         </div>
         
         <a href=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/admin/rents/\""; ?>>
@@ -29,7 +29,7 @@
                 <img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/contract.png\"";?> />
             </div>
             <div class="sidemenu-btn-label">
-                <p>Rents</p>
+                <p><?php LANG("MENU_RENT"); ?></p>
             </div>
         </a>
         <hr>
@@ -38,7 +38,7 @@
                 <img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/materials.png\"";?> />
             </div>
             <div class="sidemenu-btn-label">
-                <p>Materials</p>
+                <p><?php LANG("MENU_MATERIALS"); ?></p>
             </div>
         </a>
         <hr>
@@ -47,7 +47,7 @@
                 <img src=<?php echo "\"http://{$_SERVER['HTTP_HOST']}/pro/css/customer.png\"";?> />
             </div>
             <div class="sidemenu-btn-label">
-                <p>Clients</p>
+                <p><?php LANG("MENU_CLIENTS"); ?></p>
             </div>
         </a>
         <hr>

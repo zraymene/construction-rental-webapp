@@ -49,12 +49,11 @@ function load_lang($lang)
 
 function lang_init()
 {
-
-    
-    setcookie(LANG_COOKIE_NAME, LANG_COOKIE_DEFAULT, LANG_COOKIE_LIFE, "/"); 
+    if(!isset($_COOKIE[LANG_COOKIE_NAME]))
+        setcookie(LANG_COOKIE_NAME, LANG_COOKIE_DEFAULT, LANG_COOKIE_LIFE, "/"); 
     
     if(isset($_SESSION["LANG_DATA"])) // Mybe it is set , then free it
-        $_SESSION["LANG_DATA"] = null;
+        return;
 
     if( ($_SESSION["LANG_DATA"] = load_lang($_COOKIE[LANG_COOKIE_NAME])) == null)
         echo "Error while loading lang data";

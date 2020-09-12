@@ -14,6 +14,7 @@ class Client
     var $phone;
     var $num_rent;          // Rents IDs
     var $list_rents;
+    var $status;            // Number of late deliveries + 1 , 1 clean
 }
 
 class Material 
@@ -34,6 +35,7 @@ class Rent
     var $price;
     var $creation_date;     // YYYY-MM-DD HH:MM:SS
     var $deadline_date;    // YYYY-MM-DD
+    var $status;            // 1 : pending , 2 : done , 3 : passed deadline
     var $author_id;
 }
 
@@ -173,46 +175,48 @@ abstract class AbstractManger
         $count = 0;
 
         foreach ($new_obj as $var => $val) {
-            if( (!empty($val) && gettype($val) != "array") || isset($val)) {
-                if($var != "id")    // I was forced to add this condition alone , because it won't work if it is in the IF above
-                {
-                    switch(gettype($val))
-                    {
-                        case "integer":
-                            $bind_param_str .= "i";
-                            break;
-                        case "double":
-                            $bind_param_str .= "d";
-                            break;
-                        case "string":
-                            $bind_param_str .= "s";
-                            break;
-                        case "boolean":
-                            $bind_param_str .= "i";
-                            break;
-                        case "array":
-                            $bind_param_str .= "s";
-                            $val = json_encode($val);
-                            break;
 
-                    }
+            if( !empty($val) || gettype($val) == "array" || ( isset($val) && !empty($val) || is_bool($val) )) {      // IDK how it did work tho
+                if($var != "id" )    // I was forced to add this condition alone , because it won't work if it is in the IF above
+                {                
+                        switch(gettype($val))
+                        {
+                            case "integer":
+                                $bind_param_str .= "i";
+                                break;
+                            case "double":
+                                $bind_param_str .= "d";
+                                break;
+                            case "string":
+                                $bind_param_str .= "s";
+                                break;
+                            case "boolean":
+                                $bind_param_str .= "i";
+                                break;
+                            case "array":
+                                $bind_param_str .= "s";
+                                $val = json_encode($val);
+                                break;
 
-                    if($count == 0)
-                        $query .= "`{$var}` = ?";
-                    else
-                        $query .= ",`{$var}` = ?";
-                    
-                    array_push($arr,$val);
-                    $count++;
+                        }
+
+                        if($count == 0)
+                            $query .= "`{$var}` = ?";
+                        else
+                            $query .= ",`{$var}` = ?";
+                        
+                        array_push($arr,$val);
+                        $count++;   
                 }
             }
-
         }
 
         $query          .= " WHERE `id` = ?";
         $bind_param_str .= "i";
 
         array_push($arr , $new_obj->id);
+
+       // echo "<br>". $query;
 
         if(!($ps = $this->db_connection->prepare($query)))
         {
@@ -322,7 +326,7 @@ class ClientsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `list_rents`) VALUES ( ?, ?, ?, ?, ?);";
+        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`clients` ( `first_name`, `last_name` , `email`, `phone`, `status`, `list_rents`) VALUES ( ?, ?, ?, ?, ?, ?);";
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`clients` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`clients` WHERE `id` = ?";
         $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`clients` LIMIT ";
@@ -341,6 +345,7 @@ class ClientsManger extends AbstractManger
         $obj->phone      = $res['phone'];
         $obj->list_rents = json_decode($res['list_rents']);
         $obj->num_rents  = count($obj->list_rents);
+        $obj->status     = $res['status'];
         return $obj;
     }
 
@@ -348,26 +353,15 @@ class ClientsManger extends AbstractManger
     {
         $json_str = json_encode($obj->list_rents);  // To prevent pass by refrence warning in bin_parm 
 
-        if(!isset($obj->id))        // Means that we are adding
-        {
-        $ps->bind_param('sssss',
+        $ps->bind_param('ssssis',
                     $obj->first_name,
                     $obj->last_name,
                     $obj->email,
                     $obj->phone,
+                    $obj->status,
                     $json_str
                 );
-        }else 
-        {
-            $ps->bind_param('sssssi',
-                    $obj->first_name,
-                    $obj->last_name,
-                    $obj->email,
-                    $obj->phone,
-                    $json_str,
-                    $obj->id
-                );
-        }
+  
     }
 
     public function select_range($start , $end)
@@ -382,7 +376,7 @@ class RentsManger extends AbstractManger
     {
         parent::__construct($dbconnection);
 
-        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`rents` ( `client_id`, `material_id`, `price`, `creation_date`, `deadline_date`, `author_id`) VALUES ( ?, ?, ?, ?, ?, ?);";
+        $this->add_query          = "INSERT INTO ". DATABASE_NAME .".`rents` ( `client_id`, `material_id`, `price`, `creation_date`, `deadline_date`, `status`, `author_id`) VALUES ( ?, ?, ?, ?, ?, ?, ?);";
         $this->delete_id_query    = "DELETE FROM ". DATABASE_NAME .".`rents` WHERE `id` ";
         $this->select_id_query    = "SELECT * FROM ". DATABASE_NAME .".`rents` WHERE `id` = ?";
         $this->select_range_query = "SELECT * FROM ". DATABASE_NAME .".`rents` LIMIT ";
@@ -400,6 +394,7 @@ class RentsManger extends AbstractManger
         $obj->price         = $res['price'];
         $obj->creation_date = $res['creation_date'];
         $obj->deadline_date = $res['deadline_date'];
+        $obj->status        = $res['status'];
         $obj->author_id     = $res['author_id'];
 
         return $obj;
@@ -407,14 +402,35 @@ class RentsManger extends AbstractManger
 
     protected function bind_param($ps, $obj)
     {
-        $ps->bind_param("iidssi",
+        $ps->bind_param("iidssii",
                     $obj->client_id,
                     $obj->material_id,
                     $obj->price,
                     $obj->creation_date,
                     $obj->deadline_date,
+                    $obj->status,
                     $obj->author_id);
    
+    }
+
+    public function load_pending() 
+    {
+        $query = "SELECT `id`, `client_id`, `material_id` FROM ". DATABASE_NAME .".`rents` 
+                        WHERE `status` = 1 AND `deadline_date` >= CURRENT_DATE()";
+        
+        if(!($res = $this->db_connection->query($query))) 
+        {
+            echo $this->db_connection->error;
+            return NULL;
+        }
+   
+        if($res->num_rows <= 0 )
+        {
+            echo $this->db_connection->error;
+            return NULL;
+        }
+
+        return $res;
     }
 }
 
@@ -539,6 +555,8 @@ class AdminsManger extends AbstractManger
     }
 }
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////
+
 function refresh_mangers($obj , $new_connection)
 {
     if($obj & ADMINS_MANGER_FLAG)
@@ -572,4 +590,38 @@ function refresh_mangers($obj , $new_connection)
         else 
            $_SESSION['CLIENTS_MANGER']->refresh_db_connection($new_connection);
     }
+}
+
+function monitor_rents() 
+{
+ 
+    if( ($rents_list = $_SESSION["RENTS_MANGER"]->load_pending()) != NULL)
+    {    
+        while($rent = $rents_list->fetch_array())
+        {
+            $client   = $_SESSION["CLIENTS_MANGER"]->select_id($rent['client_id']);
+
+            if(!$client)
+                return false;
+
+            $new_cl = new Client();
+            $new_cl->id     = $client->id;
+            $new_cl->status = $client->status + 1;      // Add 1 to client's penalty
+
+            $_SESSION['CLIENTS_MANGER']->update($new_cl);
+
+            $new_rent = new Rent();
+            $new_rent->id = $rent['id'];
+            $new_rent->status = 3;          // Set rent state to danger 
+
+            $_SESSION['RENTS_MANGER']->update($new_rent);
+            
+        }
+
+        $rents_list->free_result();
+    }else 
+        return false;
+
+
+    return true;
 }

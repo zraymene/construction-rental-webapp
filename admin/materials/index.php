@@ -141,7 +141,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MATERIAL CONTROL PANEL</title>
+    <title><?php echo LANG("MATERIAL_PAGE_TITLE");?></title>
     <script src="../../js/scripts.js"></script>
     <style>
         table img {
@@ -156,7 +156,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
     <div class="content-wraper">
         <div class="container">
-            <h1>Materials table:</h1>
+            <h1><?php echo LANG("MATERIAL_PAGE_TABLE_TITLE");?></h1>
             <?php 
                 $color = $msg = "";
 
@@ -184,11 +184,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 <tr>
                     <th></th>
                     <th>ID</th>
-                    <th>name</th>
-                    <th>Is free (Now)</th>
-                    <th>Number of rents</th>
-                    <th>Clients list</th>
-                    <th>Image</th>
+                    <th><?php echo LANG("MATERIAL_PAGE_TABLE_NAME");?></th>
+                    <th><?php echo LANG("MATERIAL_PAGE_TABLE_FREE");?></th>
+                    <th><?php echo LANG("MATERIAL_PAGE_TABLE_RENTS_NUM");?></th>
+                    <th><?php echo LANG("MATERIAL_PAGE_TABLE_CLIENTS_LIST");?></th>
+                    <th><?php echo LANG("MATERIAL_PAGE_TABLE_IMAGE");?></th>
                 </tr>
                 <?php 
                     $start = 0;
@@ -205,6 +205,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
                         while($row = $res->fetch_array())
                         {  
+                            $cl_html = "";
                             $clients_list = json_decode($row['list_clients']);
 
                             if($row['is_free'])
@@ -217,6 +218,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
                             if($clients_list != null){
                                 $tmp_arr = array();
+                                $cl_html .= "• ";
 
                                 foreach($clients_list as $id) {
                                     if(array_key_exists($id,$tmp_arr))
@@ -228,7 +230,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                                 foreach($tmp_arr as $id => $num) {
                                     $client   = $_SESSION['CLIENTS_MANGER']->select_id($id);
 
-                                    $cl_html .= "Client : {$client->first_name} {$client->last_name}, rented {$num} time <br>";
+                                    $cl_html .= LANG_R("RENTS_PAGE_TABLE_CLIENT")." : {$client->first_name} {$client->last_name}, ". LANG_R("MATERIAL_PAGE_TABLE_RENTED") ." {$num} ". LANG_R("REPEATITION") ." <br>";
                                     
                                     $client = null;
                                 }
@@ -243,6 +245,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                                     <td><img src='imgs/{$row['image_path']}' alt='{$row['image_path']}'></td>
                                 </tr>
                                 ";
+
                         }
 
                         $res->free_result();
@@ -256,29 +259,29 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     echo $current_page . " / " . $total_pages;
                 ?></p>
             <div class="btns-wraper">
-                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> >Previous</button>
-                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>>Next</button>
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> ><?php LANG("BUTTON_PREV"); ?></button>
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>><?php LANG("BUTTON_NEXT"); ?></button>
             </div>
 
             <div class="btns-wraper">
-                <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Edit</button>
-                <button type="button" onclick="toggle_display('add_wraper');" class="btn">Add</button>
-                <button type="button" onclick="delete_form_submit(1);"class="btn">Delete</button>
+                <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_EDIT"); ?></button>
+                <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_ADD"); ?></button>
+                <button type="button" onclick="delete_form_submit(1);"class="btn"><?php LANG("BUTTON_DELETE"); ?></button>
             </div>
         </div>
 
         <div id="add_wraper" class="popup-container" hidden>    
             <div class="container center" >    
-                <h1>Add new Material:</h1>
+                <h1><?php LANG("MATERIAL_PAGE_NEW_MATERIAL"); ?></h1>
                 <form name="material_form" method="POST" action="index.php" onsubmit="verify_material_data(this);" enctype="multipart/form-data">
                     <input type="hidden" name="action_type" value="add" />
-                    <label for="name_field">Material name:</label><br>
+                    <label for="name_field"><?php LANG("MATERIAL_PAGE_TABLE_NAME"); ?>:</label><br>
                     <input name="mat_name" type="text" class="name_field input-field"> <br>
-                    <label for="img_field">Image:</label><br>
+                    <label for="img_field"><?php LANG("MATERIAL_PAGE_TABLE_IMAGE"); ?>:</label><br>
                     <input name="mat_img" type="file" class="img_field" ><br>
                     <div class="btns-wraper">
-                        <input type="submit" value="Add" class="btn">
-                        <button type="button" onclick="toggle_display('add_wraper');" class="btn">Cancel</button>
+                        <input type="submit" value=<?php LANG_1("BUTTON_ADD"); ?> class="btn">
+                        <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
             </div>
@@ -286,18 +289,18 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
         <div id="edit_wraper" class="popup-container" hidden>
             <div class="container center" hidden>
-                <h4>Edit material:</h4>
+                <h1><?php LANG("MATERIAL_PAGE_EDIT_MATERIAL"); ?>:</h1>
                 <form name="auth_form" method="POST" action="#" onsubmit="material_edit_form_submit(this);" enctype="multipart/form-data">
                     <input type="hidden" name="action_type" value="edit" />
                     <input type="hidden" name="id" value="0" />
                     <input type="hidden" name="mat_img_name" value="default.png"/>
-                    <label for="name_field">New Material name:</label><br>
+                    <label for="name_field"><?php LANG("MATERIAL_PAGE_NEW_NAME"); ?>:</label><br>
                     <input name="mat_name" type="text" class="name_field input-field"> <br>
-                    <label for="img_field">New Image:</label><br>
+                    <label for="img_field"><?php LANG("MATERIAL_PAGE_NEW_IMAGE"); ?>:</label><br>
                     <input name="mat_img" type="file" class="img_field" ><br>
                     <div class="btns-wraper">
-                        <input type="submit" value="Edit" class="btn">
-                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Cancel</button>
+                        <input type="submit" value=<?php LANG_1("BUTTON_EDIT"); ?> class="btn">
+                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
             </div>

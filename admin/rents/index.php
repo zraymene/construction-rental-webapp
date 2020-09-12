@@ -31,6 +31,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
             $rent->price         = $_POST['price'];
             $rent->creation_date = date("Y-m-d G:i:s");
             $rent->deadline_date = $_POST['deadline'];
+            $rent->status        = 1;
             $rent->author_id     = $_SESSION['admin']->id;
             
             if(($res = $_SESSION['RENTS_MANGER']->add($rent))){
@@ -50,29 +51,48 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 $new_mat->id           = $material->id;
                 $new_mat->list_clients = $material->list_clients;
                 $new_mat->is_free      = FALSE;
+           
                 $_SESSION['MATERIALS_MANGER']->update($new_mat);
 
                 $material = $client = null;
 
-                $info_msg = "Rent added successfully !";
+                $info_msg = LANG_R("RENTS_ADD_SUCCESS");
             }else
-                $error_msg = "Error while deleting rent!";
+                $error_msg = LANG_R("RENTS_ADD_FAILURE");
 
             $rent = null;
 
             break;
         case "edit":
-
+            
             $new_rent = new Rent();
             $new_rent->id            = $_POST['id'];
             $new_rent->price         = $_POST['price'];
             $new_rent->deadline_date = $_POST['deadline'];
             $new_rent->author_id     = $_SESSION['admin']->id;
 
+            if($_POST["status"] != "0") {
+
+                $material = $_SESSION['MATERIALS_MANGER']->select_id(intval($_POST["mat_id"]));
+
+                $new_mat = new Material();
+                $new_mat->id      = $material->id;
+
+                if($_POST['status'] == "2") // Rent set to done then free material 
+                    $new_mat->is_free = TRUE;                   
+                else if($_POST['status'] == "1")           
+                    $new_mat->is_free = FALSE;
+                
+
+                $_SESSION['MATERIALS_MANGER']->update($new_mat);
+
+                $new_rent->status = $_POST["status"];
+            }
+
             if($_SESSION['RENTS_MANGER']->update($new_rent))
-                $info_msg = "Rent edited successfully!";
+                $info_msg = LANG_R("RENTS_EDIT_SUCCESS");
             else
-                $error_msg = "Error while editing rent !";
+                $error_msg = LANG_R("RENTS_EDIT_FAILURE");
 
             $new_rent = NULL;
            
@@ -80,7 +100,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
         case "delete":
 
             if(!$_SESSION['RENTS_MANGER']->delete($_POST['list_ids'],$_POST['num_ids']))
-                $error_msg = "Error while deleting clients!";
+                $error_msg = LANG_R("RENTS_DELETE_FAILURE");
             else{
 
                 for($i = 0 ; $i <  $_POST['num_ids'] ; $i++)
@@ -107,8 +127,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
                         unset($material->list_clients[$key]);
 
-                        var_dump($material->list_clients);
-
                         if(count($material->list_clients) == 0)
                             $material->list_clients = array();
 
@@ -122,7 +140,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     $material = $client = null;
                 }
 
-                $info_msg = "Client deleted succesfully!";
+                $info_msg = LANG_R("RENTS_DELETE_SUCCESS");
             }
          
             break;
@@ -136,7 +154,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>RENTS CONTROL PANEL</title>
+    <title><?php echo LANG("RENTS_PAGE_TITLE");?></title>
     <script src="../../js/scripts.js"></script>
 </head>
 <body>
@@ -144,7 +162,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
     <div class="content-wraper">
         <div class="container">
-            <h1>Rents table:</h1>
+            <h1><?php echo LANG("RENTS_PAGE_TABLE_TITLE");?>:</h1>
             <?php 
                     $color = $msg = "";
 
@@ -172,12 +190,12 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                 <tr>
                     <th></th>
                     <th>ID</th>
-                    <th>Client</th>
-                    <th>Material</th>
-                    <th>Price</th>
-                    <th>Creation date</th>
-                    <th>Deadline</th>
-                    <th>Author</th>
+                    <th><?php echo LANG("RENTS_PAGE_TABLE_CLIENT");?></th>
+                    <th><?php echo LANG("MATERIAL");?></th>
+                    <th><?php echo LANG("RENTS_PAGE_TABLE_PRICE");?></th>
+                    <th><?php echo LANG("RENTS_PAGE_TABLE_DATE_CREATION");?></th>
+                    <th><?php echo LANG("RENTS_PAGE_TABLE_DEADLINE");?></th>
+                    <th><?php echo LANG("RENTS_PAGE_TABLE_AUTHOR");?></th>
                 </tr>
                 <?php 
                     $start = 0;
@@ -217,7 +235,19 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                                 $admin->name = "NOT FOUND";
                             }
 
-                            echo "<tr>\n<td><input type=\"checkbox\"/></td>
+                            $status = "";
+
+                            switch($row['status'])
+                            {
+                                case 1:
+                                    $status = "tabel-td-pending";
+                                    break;
+                                case 3:
+                                    $status = "tabel-td-danger";
+                                    break;
+                            }
+
+                            echo "<tr class='{$status}'>\n<td><input type=\"checkbox\"/></td>
                                     <td>{$row['id']}</td>
                                     <td id=\"{$client->id}\">{$client->first_name} {$client->last_name}</td>
                                     <td id=\"{$material->id}\">{$material->name}</td>
@@ -242,25 +272,26 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                     echo $current_page . " / " . $total_pages;
                 ?></p>
             <div class="btns-wraper">
-                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> >Previous</button>
-                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>>Next</button>
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page - 1) ."'"; ?> type="button" <?php echo ($current_page == 1) ? "disabled" : ""; ?> ><?php LANG("BUTTON_PREV"); ?></button>
+                <button class="btn" onclick=<?php echo "location.href='index.php?page_num=". ($current_page + 1) ."'"; ?> type="button" <?php echo ($current_page == $total_pages) ? "disabled" : ""; ?>><?php LANG("BUTTON_NEXT"); ?></button>
             </div>
             <div class="btns-wraper">
-                <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Edit</button>
-                <button type="button" onclick="toggle_display('add_wraper');" class="btn">Add</button>
-                <button type="button" onclick="delete_form_submit(2);"class="btn">Delete</button>
+                <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_EDIT"); ?></button>
+                <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_ADD"); ?></button>
+                <button type="button" onclick="delete_form_submit(2);"class="btn"><?php LANG("BUTTON_DELETE"); ?></button>
             </div>
         </div>
 
         <div id="add_wraper" class="popup-container" hidden>    
             <div class="container center" hidden>
+                <h1><?php LANG("RENTS_PAGE_ADD_RENT"); ?></h1>
                 <form name="material_form" method="POST" action="index.php" onsubmit="verify_rent_data(this);" enctype="multipart/form-data">
                     <input type="hidden" name="action_type" value="add" />
-                    <label for="price_field">Price :</label><br>
+                    <label for="price_field"><?php LANG("RENTS_PAGE_TABLE_PRICE"); ?>:</label><br>
                     <input name="price" type="number" class="price_field input-field" value="1" min="1" step="any"><br>
-                    <label for="client_field">Client :</label><br>
+                    <label for="client_field"><?php LANG("RENTS_PAGE_TABLE_CLIENT"); ?>:</label><br>
                     <select id="clients" name="client_id" class="client_field input-field select-field">
-                    <option value="0">Choose a Client</option>
+                    <option value="0"><?php LANG("RENTS_PAGE_CHOOSE_CLIENT"); ?></option>
                         <?php
                             $res = $_SESSION['CLIENTS_MANGER']->select_limit(0 , 100);
                             
@@ -268,14 +299,15 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                             {
                                 while($row = $res->fetch_array())
                                 {  
-                                    echo "<option value=\"{$row["id"]}\">{$row["first_name"]} {$row["last_name"]} | {$row["email"]}</option>";
+                                    if($row["status"] != CLIENT_MAX_LATE_BAN)
+                                        echo "<option value=\"{$row["id"]}\">{$row["first_name"]} {$row["last_name"]} | {$row["email"]}</option>";
                                 }
                             }
                         ?>
                     </select><br>
-                    <label for="material_field">Material :</label><br>
+                    <label for="material_field"><?php LANG("MATERIAL"); ?>:</label><br>
                     <select id="materials" name="material_id" class="material_field input-field select-field">
-                        <option value="0">Choose a Material</option>
+                        <option value="0"><?php LANG("RENTS_PAGE_CHOOSE_MATERIAL"); ?></option>
                         <?php
                             $res = $_SESSION['MATERIALS_MANGER']->select_limit(0 , 100);
                             
@@ -290,11 +322,11 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
                             }
                         ?>
                     </select><br>
-                    <label for="deadline_field">Deadline :</label><br>
+                    <label for="deadline_field"><?php LANG("RENTS_PAGE_TABLE_DEADLINE"); ?>:</label><br>
                     <input type="date" name="deadline" class="deadline_field input-field">
                     <div class="btns-wraper">
-                        <input type="submit" value="Add" class="btn">
-                        <button type="button" onclick="toggle_display('add_wraper');" class="btn">Cancel</button>
+                        <input type="submit" value=<?php LANG_1("BUTTON_ADD"); ?> class="btn">
+                        <button type="button" onclick="toggle_display('add_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
             </div>
@@ -302,17 +334,25 @@ if($_SERVER["REQUEST_METHOD"] == "POST")
 
         <div id="edit_wraper" class="popup-container" hidden>
             <div class="container center" hidden>
-            <h1>Add new admin</h1>
+                <h1><?php LANG("RENTS_PAGE_EDIT_RENT"); ?></h1>
                 <form name="auth_form" method="POST" action="#" onsubmit="rents_edit_form_submit(this);" enctype="multipart/form-data">
                     <input type="hidden" name="action_type" value="edit" />
                     <input type="hidden" name="id" value="0" />
-                    <label for="price_field">Price :</label><br>
+                    <input type="hidden" name="mat_id" value="0"/>
+                    <label for="price_field"><?php LANG("RENTS_PAGE_TABLE_PRICE"); ?>:</label><br>
                     <input name="price" type="number" class="price_field input-field" min="1" step="any"><br>
-                    <label for="deadline_field">Deadline :</label><br>
+                    <label for="deadline_field"><?php LANG("RENTS_PAGE_TABLE_DEADLINE"); ?>:</label><br>
                     <input type="date" name="deadline" class="deadline_field input-field"><br>
+                    <label for="status_field"><?php LANG("RENTS_PAGE_EDIT_STATUS"); ?>:</label><br>
+                    <select id="status_id" name="status" class="status_field input-field select-field">
+                        <option value="0"><?php LANG("STATUS_EDIT"); ?></option>
+                        <option value="2"><?php LANG("STATUS_DONE"); ?></option>
+                        <option value="1"><?php LANG("STATUS_PENDING"); ?></option>
+                        <option value="3"><?php LANG("STATUS_LATE_DELIVERY"); ?></option>
+                    </select><br>
                     <div class="btns-wraper">
-                        <input type="submit" value="Edit" class="btn">
-                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn">Cancel</button>
+                        <input type="submit" value=<?php LANG_1("BUTTON_EDIT"); ?> class="btn">
+                        <button type="button" onclick="toggle_display('edit_wraper');" class="btn"><?php LANG("BUTTON_CANCEL"); ?></button>
                     </div>
                 </form>
             </div>
