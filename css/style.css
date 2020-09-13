@@ -29,6 +29,21 @@ body {
     margin-top: 6px;
 }
 
+.botbar-wraper {
+    background-color: #ca3e47;
+    position: fixed;
+    box-shadow: 0px 0px 6px 0px grey;
+    height: 100px;
+    width: 100%;
+    bottom: 0;
+    text-align: center;
+}
+
+.botbar-wraper p {
+    color: white;
+    margin-top: 35px;
+}
+
 .lang-selec {
     position: absolute;
     top: 6px;

@@ -63,5 +63,8 @@
                     <hr>";
             }
         ?>
+</div>
 
+<div class="botbar-wraper">
+    <p> Created by : ZEROUAL AYMENE - 2020</p>
 </div>
