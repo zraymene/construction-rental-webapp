@@ -10,24 +10,19 @@
 $install_file = "install.php";
 
 if(file_exists($install_file))
-{
-        echo 'Found fine : installing !';
-
-        header( "Location:".$install_file );
-
-}
+    header( "Location:".$install_file );
+   
 
 $install_file = null;
 
 require("core/db_connect.php");
 require("core/systems.php");
+require("core/lang.php");
 
 session_start();
 
-refresh_mangers(RENTS_MANGER_FLAG | CLIENTS_MANGER_FLAG | MATERIALS_MANGER_FLAG | ADMINS_MANGER_FLAG,$db_connection);
-
-if(!monitor_rents())
-    $error_msg = LANG_R("MONITOR_ERROR");
+if(!isset($_SESSION["LANG_DATA"]))
+    lang_init();
 
 if(!isset($_SESSION['admin']))   // Check if admin is already loged in 
 {
@@ -37,7 +32,14 @@ if(!isset($_SESSION['admin']))   // Check if admin is already loged in
 if(!$_SESSION['admin']->is_ceo)
 {
     header("Location:rents/");  // Not CEO , Send him to rents page
+
 }
+
+refresh_mangers(RENTS_MANGER_FLAG | CLIENTS_MANGER_FLAG | MATERIALS_MANGER_FLAG | ADMINS_MANGER_FLAG,$db_connection);
+
+
+if(!monitor_rents())
+    $error_msg = LANG_R("MONITOR_ERROR");
 
 $info_msg = $error_msg = "";
  

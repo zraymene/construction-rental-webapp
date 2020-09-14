@@ -3,7 +3,12 @@
  * @author ZEROUAL AYMENE <aymenezeroual@gmail.com>
  */
 
+require_once("core/config.php");
 require_once("core/db_connect.php");
+require("core/lang.php");
+
+if(!isset($_SESSION["LANG_DATA"]))
+    lang_init();
 
 if( $_SERVER['REQUEST_METHOD'] == 'POST' )
 {
@@ -57,7 +62,7 @@ $queries = array(
         `id` int(11) NOT NULL AUTO_INCREMENT,
         `name` varchar(255) NOT NULL,
         `is_free` tinyint(1) NOT NULL DEFAULT 0,
-        `number_rents` INT NOT NULL
+        `number_rents` INT NOT NULL,
         `list_clients` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_bin NOT NULL CHECK (json_valid(`list_clients`)),
         `image_path` varchar(255) NOT NULL,
         PRIMARY KEY (`id`)
@@ -96,7 +101,7 @@ foreach ($queries as $query) {
     <link rel="stylesheet" href="css/style.css">
     <link rel="icon" href="css/dashboard.png">
 </head>
-<body <?php echo "onload=\"lang_js(" . $_COOKIE["LANG_COOKIE_NAME"] . ");\"";?>>
+<body <?php echo "onload=\"lang_js(" . $_COOKIE[LANG_COOKIE_NAME] . ");\"";?>>
     <div id="edit_wraper" class="popup-container">
             <?php 
                 if(!empty($error))

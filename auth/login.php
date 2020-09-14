@@ -16,6 +16,7 @@ $error = "";
 if(isset($_SESSION['admin']))   // Check if admin is already loged in 
 {
     header("Location:../");
+   
 }
 if($_SERVER["REQUEST_METHOD"] == "POST")
 {

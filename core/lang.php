@@ -6,7 +6,6 @@ require_once("config.php");
 function load_lang($lang) 
 {
     if( !($lang_file = fopen(LANG_FILE , "r")) ) {
-        echo "Error while opening language file !";
         return null;
     }
 
@@ -55,7 +54,7 @@ function lang_init()
     if(isset($_SESSION["LANG_DATA"])) // Mybe it is set , then free it
         return;
 
-    if( ($_SESSION["LANG_DATA"] = load_lang($_COOKIE[LANG_COOKIE_NAME])) == null)
+    if( ($_SESSION["LANG_DATA"] = load_lang(LANG_COOKIE_DEFAULT)) == null)
         echo "Error while loading lang data";
 
 }
